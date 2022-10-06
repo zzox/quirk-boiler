@@ -1,0 +1,20 @@
+{
+    "search.exclude": {
+        "build/**/*.*": true
+    },
+    "[haxe]": {
+        "editor.codeActionsOnSave": {
+            "source.sortImports": true
+        }
+    },
+    "haxe.enableExtendedIndentation": true,
+    "editor.rulers": [80, 120],
+    // "emeraldwalk.runonsave": {
+    //     "commands": [
+    //         {
+    //             "match": "\\.hx",
+    //             "cmd": "haxe build.hxml"
+    //         }
+    //     ]
+    // }
+}
