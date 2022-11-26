@@ -47,9 +47,30 @@ typedef Rect = {
     var width:Float;
 }
 
+typedef IntRect = {
+    var x:Int;
+    var y:Int;
+    var height:Int;
+    var width:Int;
+}
+
 enum Dir {
     Left;
     Right;
     Up;
     Down;
+}
+
+typedef DirFlags = {
+    var left:Bool;
+    var right:Bool;
+    var up:Bool;
+    var down:Bool;
+}
+
+typedef DirTimes = {
+    var left:Float;
+    var right:Float;
+    var up:Float;
+    var down:Float;
 }

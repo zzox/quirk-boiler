@@ -3,13 +3,6 @@ package core;
 import core.Types;
 import core.Util;
 
-typedef DirFlags = {
-    var left:Bool;
-    var right:Bool;
-    var up:Bool;
-    var down:Bool;
-}
-
 // TODO: mass
 /**
     A rectangle that can move and collide with other recangles. Has a parent
@@ -107,7 +100,7 @@ class PhysicsBody {
         );
     }
 
-    function resetTouchingFlags () {
+    public function resetTouchingFlags () {
         touching = {
             left: false,
             right: false,
@@ -178,6 +171,7 @@ class Physics {
     // https://gamedev.stackexchange.com/questions/13774/how-do-i-detect-the-direction-of-2d-rectangular-object-collisions
     // NOTE: checking a perpedicular direction first may prevent seam-clipping.
     function checkDirectionalCollision (fromBody:PhysicsBody, intoBody:PhysicsBody, separates:Bool) {
+        // TODO: something like if abs(velocity.y) > abs(velocity.x) checkLeft(); checkRight();
         if (fromBody.lastPos.x >= intoBody.position.x + intoBody.size.x
             && fromBody.position.x < intoBody.position.x + intoBody.size.x) {
             fromBody.touching.left = true;

@@ -34,7 +34,13 @@ class Scene {
         for (sprite in sprites) {
             sprite.update(delta);
         }
+
+        // filter out destroyed sprites.
+        sprites = sprites.filter((sprite) -> !sprite.destroyed);
     }
+
+    // sends a number between 0 and 1 as a percentage of the assets being loaded.
+    public function updateProgress (progress:Float) {}
 
     // called when drawing, passes in graphics instance
     public function render (graphics:Graphics, camera:Camera) {

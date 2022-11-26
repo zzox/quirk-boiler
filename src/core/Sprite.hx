@@ -5,8 +5,19 @@ import core.Object;
 import core.Types;
 import core.Util;
 import kha.Color;
+import kha.Font;
 import kha.Image;
 import kha.graphics2.Graphics;
+
+enum SpriteType {
+    None;
+    Image;
+    Rect;
+    Line;
+    Text;
+    BitmapText;
+    Tilemap;
+}
 
 typedef Line = {
     var to:Vec2;
@@ -20,6 +31,8 @@ typedef Line = {
 class Sprite extends Object {
     // If this sprite is drawn, checked in `render()`.
     public var visible:Bool = true;
+    // This sprite's type.
+    var type:SpriteType = None;
     // The `rect` bounds (only drawn when image is null).
     public var rect:IntVec2;
     // The `line` bounds (only drawn when image and rect is null).
@@ -49,6 +62,20 @@ class Sprite extends Object {
     public var color:Int = 0xffffffff;
     // This sprite's text string.
     public var text:String;
+    // Array of tile integers.
+    var tiles:Array<Int>;
+    // Size of each tile.
+    var tileSize:IntVec2;
+    // Width of the map in tiles.
+    var mapWidth:Int;
+    // This sprite's font.
+    var font:Font;
+    // This sprite's font size (only for non-bitmap fonts).
+    var fontSize:Int;
+    // This sprite's bitmap font.
+    public var bitmapFont:BitmapFont;
+    // The width of the text characters.
+    public var textWidth:Int;
 
     public function new (position:Vec2, ?image:Image, ?size:IntVec2) {
         if (image != null && size == null) {
@@ -57,6 +84,9 @@ class Sprite extends Object {
 
         super(position, size);
         this.image = image;
+        if (image != null) {
+            type = Image;
+        }
         scale = new Vec2(1.0, 1.0);
         animation = new Animation(this);
     }
@@ -81,29 +111,77 @@ class Sprite extends Object {
             g2.pushTranslation(-camera.scroll.x * scrollFactor.x, -camera.scroll.y * scrollFactor.y);
             g2.pushScale(camera.scale.x, camera.scale.y);
 
-            if (image != null) {
-                // draw a cutout of the spritesheet based on the tileindex
-                final cols = Std.int(image.width / size.x);
-                // TODO: clamp all to int besides camera position
-                g2.drawScaledSubImage(
-                    image,
-                    (tileIndex % cols) * size.x,
-                    Math.floor(tileIndex / cols) * size.y,
-                    size.x,
-                    size.y,
-                    x + (flipX ? size.x * scale.x : 0),
-                    y + (flipY ? size.y * scale.y : 0),
-                    size.x * scale.x * (flipX ? -1 : 1),
-                    size.y * scale.y * (flipY ? -1 : 1)
-                );
+            switch (type) {
+                case Image:
+                    // draw a cutout of the spritesheet based on the tileindex
+                    final cols = Std.int(image.width / size.x);
+                    // TODO: clamp all to int besides camera position
+                    g2.drawScaledSubImage(
+                        image,
+                        (tileIndex % cols) * size.x,
+                        Math.floor(tileIndex / cols) * size.y,
+                        size.x,
+                        size.y,
+                        Math.floor(x + (flipX ? size.x * scale.x : 0)),
+                        Math.floor(y + (flipY ? size.y * scale.y : 0)),
+                        size.x * scale.x * (flipX ? -1 : 1),
+                        size.y * scale.y * (flipY ? -1 : 1)
+                    );
+                case Rect:
+                    g2.fillRect(x, y, rect.x * scale.x, rect.y * scale.y);
+                case Line:
+                    g2.drawLine(x, y, line.to.x, line.to.y, line.width);
+                case Text:
+                    g2.font = font;
+                    g2.fontSize = fontSize;
+                    g2.drawString(text, x, y);
+                    textWidth = Std.int(font.width(fontSize, text));
+                case BitmapText:
+                    final lineHeight = bitmapFont.getFontData().lineHeight;
+                    var scrollPos:Int = 0;
+                    for (char in text.split('')) {
+                        final charData = bitmapFont.getCharData(char);
 
-                // NOTE: is it more performant to check for rect or turn the rect into an image?
-            } else if (rect != null) {
-                g2.fillRect(x, y, rect.x * scale.x, rect.y * scale.y);
-            } else if (line != null) {
-                g2.drawLine(x, y, line.to.x, line.to.y, line.width);
-            } else if (text != null) {
-                g2.drawString(text, x, y);
+                        // most font types should be exact, construct 3's can wrap.
+                        final destX = charData.dest.x % image.realWidth;
+                        final destY = charData.dest.y + charData.dest.height *
+                            Math.floor(charData.dest.x / image.realWidth);
+
+                        g2.drawSubImage(
+                            image,
+                            x + scrollPos,
+                            y + lineHeight,
+                            destX,
+                            destY,
+                            charData.dest.width,
+                            charData.dest.height
+                        );
+
+                        scrollPos += charData.width;
+                    }
+                    textWidth = scrollPos;
+                case Tilemap:
+                    for (tile in 0...tiles.length) {
+                        final tileNum = tiles[tile] - 1;
+                        if (tileNum >= 0) {
+                            final cols = Std.int(image.width / tileSize.x);
+                            final tileCols = Std.int(tiles.length / mapWidth);
+
+                            // TODO: doesn't work for non-square maps
+                            g2.drawScaledSubImage(
+                                image,
+                                (tileNum % cols) * tileSize.x,
+                                Math.floor(tileNum / cols) * tileSize.y,
+                                tileSize.x,
+                                tileSize.y,
+                                (tile % tileCols) * tileSize.x,
+                                Math.floor(tile / tileCols) * tileSize.y,
+                                tileSize.x * scale.x * (flipX ? -1 : 1),
+                                tileSize.y * scale.y * (flipY ? -1 : 1)
+                            );
+                        }
+                    }
+                case None: null;
             }
 
             g2.popTransformation();
@@ -114,7 +192,9 @@ class Sprite extends Object {
         }
 
         for (child in _children) {
-            child.render(g2, camera);
+            if (child.visible) {
+                child.render(g2, camera);
+            }
         }
     }
 
@@ -125,11 +205,7 @@ class Sprite extends Object {
         g2.color = Color.Magenta;
         g2.pushTranslation(-camera.scroll.x * scrollFactor.x, -camera.scroll.y * scrollFactor.y);
         g2.pushScale(camera.scale.x, camera.scale.y);
-        if (physicsEnabled) {
-            g2.drawRect(x + offset.x, y + offset.y, body.size.x, body.size.y);
-        } else {
-            g2.drawRect(x, y, size.x, size.y);
-        }
+        g2.drawRect(x + offset.x, y + offset.y, body.size.x, body.size.y);
         g2.popTransformation();
         g2.popTransformation();
         g2.color = Color.White;
@@ -139,19 +215,44 @@ class Sprite extends Object {
     }
 #end
 
-    // ATTN: this will not render if there's an image loaded. maybe redo
+    // Make a rectangle using the current position as top left.
     public function makeRect (color:Int, ?rectSize:IntVec2) {
         if (rectSize != null) {
             size = rectSize.clone();
         }
         rect = new IntVec2(size.x, size.y);
         this.color = color;
+        type = Rect;
     }
 
-    // ATTN: ^^
+    // Make a line from this current position to a new point.
     public function makeLine (to:Vec2, width:Int, color:Int) {
         line = { to: to, width: width };
         this.color = color;
+        type = Image;
+    }
+
+    // Make line of text.
+    public function makeText (text:String, font:Font, fontSize:Int) {
+        this.text = text;
+        this.font = font;
+        this.fontSize = fontSize;
+        type = Text;
+    }
+
+    // Make bitmap text. No font sizes on bitmap text.
+    public function makeBitmapText (text:String, font:BitmapFont) {
+        this.text = text;
+        this.bitmapFont = font;
+        type = BitmapText;
+    }
+
+    // Make a tilemap. (mapWidth is in tiles not pixels)
+    public function makeTilemap (tiles:Array<Int>, tileSize:IntVec2, mapWidth:Int) {
+        this.tiles = tiles;
+        this.tileSize = tileSize;
+        this.mapWidth = mapWidth;
+        type = Tilemap;
     }
 
     // Stops sprite from being updated _or_ drawn.
@@ -160,7 +261,7 @@ class Sprite extends Object {
         visible = false;
     }
 
-    // Stops sprite being updated _and_ drawn.
+    // Starts sprite being updated _and_ drawn.
     public function start () {
         active = true;
         visible = true;

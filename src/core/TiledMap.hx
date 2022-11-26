@@ -19,6 +19,12 @@ typedef TiledObject = {
     var height:Float;
     var properties:Map<String, String>;
 }
+
+typedef TileLayer = {
+    var width:Int;
+    var height:Int;
+    var data:Array<Int>;
+}
 function getImagefromPath (imagePath:String):Image {
     final path = imagePath.split('/');
     final name = path[path.length - 1].split('.')[0];
@@ -36,6 +42,8 @@ class TiledMap {
     public var tileSize:IntVec2;
     // Size of this map in pixels.
     public var pixelSize:IntVec2;
+    // Map of tile layers.
+    public var tileLayers:Map<String, TileLayer> = [];
     // Map of object groups.
     public var objectGroups:Map<String, Array<TiledObject>> = [];
     // Map of images.
@@ -55,6 +63,14 @@ class TiledMap {
         );
 
         pixelSize = new IntVec2(size.x * tileSize.x, size.y * tileSize.y);
+
+        for (tileLayer in xml.elementsNamed('layer')) {
+            tileLayers.set(tileLayer.get('name'), {
+                data: tileLayer.firstElement().firstChild().toString().split(',').map((item) -> Std.parseInt(item)),
+                width: Std.parseInt(tileLayer.get('width')),
+                height: Std.parseInt(tileLayer.get('height'))
+            });
+        }
 
         for (objGroup in xml.elementsNamed('objectgroup')) {
             final objects = [];

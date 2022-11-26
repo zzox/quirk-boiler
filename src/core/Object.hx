@@ -44,8 +44,12 @@ class Object {
             }
 
             for (child in _children) {
-                child.update(delta);
+                if (child.active) {
+                    child.update(delta);
+                }
             }
+
+            _children = _children.filter((sprite) -> !sprite.destroyed);
         }
     }
 

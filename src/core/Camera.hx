@@ -6,8 +6,8 @@ import kha.Color;
 
 class Camera {
     // for now these will stay 0.
-    public var x:Int = 0;
-    public var y:Int = 0;
+    // public var x:Int = 0;
+    // public var y:Int = 0;
     public var scroll:Vec2;
     public var scale:Vec2 = new Vec2(1, 1);
     public var height:Int;
@@ -42,7 +42,9 @@ class Camera {
 
     public function startFollow (sprite:Sprite, ?offset:IntVec2) {
         follow = sprite;
-        if (offset != null) {
+        if (offset == null) {
+            followOffset = new IntVec2(0, 0);
+        } else {
             followOffset = offset.clone();
         }
     }

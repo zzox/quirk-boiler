@@ -13,6 +13,16 @@ function clamp (value:Float, min:Float, max:Float):Float {
     return value;
 }
 
+function intClamp (value:Int, min:Int, max:Int):Int {
+    if (value < min) {
+        return min;
+    } else if (value > max) {
+        return max;
+    }
+
+    return value;
+}
+
 function toRadians (value:Float):Float {
     return value * (Math.PI / 180);
 }

@@ -52,6 +52,9 @@ class Game {
     // Size of the game, meant to _not_ change for the time being.
     public var size:IntVec2;
 
+    // size of the buffer, the scaled game size.
+    public var bufferSize:IntVec2;
+
     public function new (
         size:IntVec2,
         initalScene:Scene,
@@ -63,7 +66,7 @@ class Game {
         this.size = size;
 
         System.start({ title: name, width: size.x, height: size.y }, (_window) -> {
-            final bufferSize = initialSize != null ? initialSize : size;
+            bufferSize = initialSize != null ? initialSize : size;
             backbuffer = Image.createRenderTarget(bufferSize.x, bufferSize.y);
             backbuffer.g2.imageScaleQuality = Low;
 
@@ -81,11 +84,8 @@ class Game {
                 Keyboard.get().notify(keys.pressButton, keys.releaseButton);
             }
 
-            // TODO: preloader
-            // use Assets.progress in preload scene
-            Assets.loadEverything(() -> {
-                switchScene(initalScene);
-
+            Assets.loadImage('made_with_kha', (_:Image) -> {
+                switchScene(new PreloadScene());
                 Scheduler.addTimeTask(() -> { update(); }, 0, 1 / 60);
 
                 if (scaleMode == Full) {
@@ -93,6 +93,10 @@ class Game {
                 } else {
                     System.notifyOnFrames((frames) -> { renderScaled(frames[0]); });
                 }
+
+                Assets.loadEverything(() -> {
+                    switchScene(initalScene);
+                });
             });
         });
     }
@@ -107,6 +111,7 @@ class Game {
             Std.int(camera.scroll.y + mouse.screenPos.y / camera.scale.y)
         );
 
+        currentScene.updateProgress(Assets.progress);
         currentScene.update(delta);
         // physics.update(delta); // not used
         camera.update(delta);
@@ -170,6 +175,7 @@ class Game {
             scene.destroy();
         }
 
+        camera = new Camera(0, 0, bufferSize.x, bufferSize.y);
         scene.game = this;
         scene.create();
         currentScene = scene;
