@@ -52,7 +52,7 @@ class Game {
     // Size of the game, meant to _not_ change for the time being.
     public var size:IntVec2;
 
-    // size of the buffer, the scaled game size.
+    // Size of the buffer.
     public var bufferSize:IntVec2;
 
     public function new (
