@@ -66,6 +66,10 @@ class MouseInput extends Input {
     public function justPressed (button:MouseButton):Bool {
         return _justPressed.contains(button);
     }
+
+    public function justReleased (button:MouseButton):Bool {
+        return _justReleased.contains(button);
+    }
 }
 
 class KeysInput extends Input {
@@ -103,5 +107,9 @@ class KeysInput extends Input {
 
     public function anyJustPressed (codes:Array<KeyCode>):Bool {
         return (_justPressed.filter((c) -> codes.contains(c))).length > 0;
+    }
+
+    public function justReleased (code:KeyCode):Bool {
+        return _justReleased.contains(code);
     }
 }
