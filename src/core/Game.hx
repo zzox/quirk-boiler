@@ -80,6 +80,8 @@ class Game {
                 Mouse.get().notify(mouse.pressMouse, mouse.releaseMouse, onMouseMove);
             }
 
+            Mouse.get().hideSystemCursor();
+
             if (Keyboard.get() != null) {
                 Keyboard.get().notify(keys.pressButton, keys.releaseButton);
             }
