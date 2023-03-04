@@ -68,9 +68,69 @@ class ConstructBitmapFont implements BitmapFont {
     }
 
     // get the width of a set of characters
+    // TODO: move to a parent class
     public function getTextWidth (text:String):Int {
         return Lambda.fold(
-            text.split('').map((char) -> getCharData(char).width),
+            text.split('').map((char) -> {
+                final charData = getCharData(char);
+                if (charData == null) {
+                    throw 'Do not have char: ${char}';
+                }
+                return charData.width;
+            }),
+            (item:Int, result) -> result + item,
+            0
+        );
+    }
+}
+
+final asciiChars = ' !"#$%&*()*+,-./0123456789;:<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[/]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+// special type of font for: https://opengameart.org/content/pixel-font-basic-latin-latin-1-box-drawing
+class AsciiFont implements BitmapFont {
+    var lineHeight:Int;
+    var charSize:IntVec2;
+    static final charArray:Array<String> = asciiChars.split('');
+
+    public function new (charSize:IntVec2, lineHeight:Int) {
+        this.charSize = charSize;
+        this.lineHeight = lineHeight;
+    }
+
+    // Get data about the character from this font.
+    public function getCharData (charString:String):CharData {
+        final char = charArray.contains(charString.charAt(0));
+
+        // TODO: remove?
+        if (char == null) {
+            throw 'No char found!';
+        }
+
+        return {
+            dest: {
+                x: charArray.indexOf(charString.charAt(0)) * charSize.x,
+                y: 0,
+                width: charSize.x,
+                height: charSize.y
+            },
+            width: charSize.x
+        };
+    }
+
+    // Get data about this font.
+    public function getFontData ():FontData {
+        return { lineHeight: lineHeight };
+    }
+
+    // get the width of a set of characters
+    public function getTextWidth (text:String):Int {
+        return Lambda.fold(
+            text.split('').map((char) -> {
+                final charData = getCharData(char);
+                if (charData == null) {
+                    throw 'Do not have char: ${char}';
+                }
+                return charData.width;
+            }),
             (item:Int, result) -> result + item,
             0
         );
