@@ -9,7 +9,12 @@ import kha.Image;
 import kha.Scaler;
 import kha.Scheduler;
 import kha.ScreenCanvas;
+import kha.Shaders;
 import kha.System;
+import kha.graphics4.FragmentShader;
+import kha.graphics4.PipelineState;
+import kha.graphics4.VertexData;
+import kha.graphics4.VertexStructure;
 import kha.input.Keyboard;
 import kha.input.Mouse;
 
@@ -54,6 +59,9 @@ class Game {
 
     // Size of the buffer.
     public var bufferSize:IntVec2;
+
+    // The pipeline used to render the full screen.
+    static var fullScreenPipeline: PipelineState;
 
     public function new (
         size:IntVec2,
@@ -100,6 +108,8 @@ class Game {
                     switchScene(initalScene);
                 });
             });
+
+            setFullscreenShader(Shaders.painter_image_frag);
         });
     }
 
@@ -131,6 +141,7 @@ class Game {
 #if debug_physics
         currentScene.renderDebug(framebuffer.g2, camera);
 #end
+        framebuffer.g2.pipeline = fullScreenPipeline;
         framebuffer.g2.end();
     }
 
@@ -143,6 +154,7 @@ class Game {
         backbuffer.g2.end();
 
         framebuffer.g2.begin(true, Color.Black);
+        framebuffer.g2.pipeline = fullScreenPipeline;
         if (scaleMode == PixelPerfect) {
             ScalerExp.scalePixelPerfect(backbuffer, framebuffer);
         } else {
@@ -186,4 +198,17 @@ class Game {
             callback();
         }
     }
+
+    // Set the shader to be used to render the full screen.
+	public function setFullscreenShader (fragShader:FragmentShader) {
+		fullScreenPipeline = new PipelineState();
+		final structure = new VertexStructure();
+		structure.add("vertexPosition", VertexData.Float32_3X);
+		structure.add("vertexUV", VertexData.Float32_2X);
+		structure.add("vertexColor", VertexData.UInt8_4X_Normalized);
+		fullScreenPipeline.inputLayout = [structure];
+		fullScreenPipeline.vertexShader = Shaders.painter_image_vert;
+		fullScreenPipeline.fragmentShader = fragShader;
+		fullScreenPipeline.compile();
+	}
 }
