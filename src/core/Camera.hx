@@ -5,6 +5,7 @@ import core.Util;
 import kha.Color;
 
 class Camera {
+    static inline final MIN_LERP_DISTANCE = 60 / 1000;
     // for now these will stay 0.
     // public var x:Int = 0;
     // public var y:Int = 0;
@@ -13,8 +14,10 @@ class Camera {
     public var height:Int;
     public var width:Int;
     public var bgColor:kha.Color = Color.Black;
-    var follow:Null<Sprite> = null;
-    var followOffset:IntVec2 = new IntVec2(0, 0);
+    public var followX:Null<Sprite> = null;
+    public var followY:Null<Sprite> = null;
+    public var followOffset:IntVec2 = new IntVec2(0, 0);
+    public var followLerp:Vec2 = new Vec2(1.0, 1.0);
     var bounds:Null<Rect> = null;
 
     public function new (x:Int, y:Int, width:Int, height:Int) {
@@ -25,10 +28,27 @@ class Camera {
 
     public function update (delta:Float) {
         // TODO: handle the scale from camera
-        if (follow != null) {
-            scroll.x = follow.getMidpoint().x - (width / 2) / scale.x;
-            scroll.y = follow.getMidpoint().y - (height / 2) / scale.y;
+        if (followX != null) {
+            final targetX = followX.getMidpoint().x - (width / 2) / scale.x;
+            var diffX = lerp(targetX, scroll.x, followLerp.x);
+
+            if (Math.abs(diffX) < MIN_LERP_DISTANCE) {
+                diffX = targetX - scroll.x;
+            }
+
+            scroll.x += diffX;
             scroll.x -= followOffset.x;
+        }
+
+        if (followY != null) {
+            final targetY = followY.getMidpoint().y - (height / 2) / scale.y;
+            var diffY = lerp(targetY, scroll.y, followLerp.y);
+
+            if (Math.abs(diffY) < MIN_LERP_DISTANCE) {
+                diffY = targetY - scroll.y;
+            }
+
+            scroll.y += diffY;
             scroll.y -= followOffset.y;
         }
 
@@ -40,17 +60,25 @@ class Camera {
         }
     }
 
-    public function startFollow (sprite:Sprite, ?offset:IntVec2) {
-        follow = sprite;
+    public function startFollow (sprite:Sprite, ?offset:IntVec2, ?lerp:Vec2) {
+        followX = sprite;
+        followY = sprite;
         if (offset == null) {
             followOffset = new IntVec2(0, 0);
         } else {
             followOffset = offset.clone();
         }
+
+        if (lerp == null) {
+            followLerp = new Vec2(1.0, 1.0);
+        } else {
+            followLerp = lerp.clone();
+        }
     }
 
     public function stopFollow () {
-        follow = null;
+        followX = null;
+        followY = null;
         followOffset = null;
     }
 

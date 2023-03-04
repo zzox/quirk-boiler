@@ -44,3 +44,7 @@ function average (values:Array<Float>):Float {
 
     return Lambda.fold(values, (value, tot) -> tot + value, 0) / values.length;
 }
+
+function lerp (target:Float, current:Float, percent:Float):Float {
+    return (target - current) * percent;
+}
