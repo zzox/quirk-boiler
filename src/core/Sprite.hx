@@ -93,9 +93,10 @@ class Sprite extends Object {
 
     // To be extended by others, called from Scene.
     override public function update (delta:Float) {
-        super.update(delta);
-
-        animation.update(delta);
+        if (active) {
+            super.update(delta);
+            animation.update(delta);
+        }
     }
 
     // Draw this sprite.
@@ -103,11 +104,7 @@ class Sprite extends Object {
         if (visible) {
             g2.color = Math.floor(alpha * 256) * 0x1000000 + color;
 
-            // TODO: remove angle if pushing is less costly than null check
-            if (angle != 0.0) {
-                g2.pushRotation(toRadians(angle), getMidpoint().x, getMidpoint().y);
-            }
-
+            g2.pushRotation(toRadians(angle), getMidpoint().x, getMidpoint().y);
             g2.pushTranslation(-camera.scroll.x * scrollFactor.x, -camera.scroll.y * scrollFactor.y);
             g2.pushScale(camera.scale.x, camera.scale.y);
 
@@ -139,6 +136,8 @@ class Sprite extends Object {
                 case BitmapText:
                     final lineHeight = bitmapFont.getFontData().lineHeight;
                     var scrollPos:Int = 0;
+                    var xPos:Int = Math.floor(x);
+                    var yPos:Int = Math.floor(y);
                     for (char in text.split('')) {
                         final charData = bitmapFont.getCharData(char);
 
@@ -149,8 +148,8 @@ class Sprite extends Object {
 
                         g2.drawSubImage(
                             image,
-                            x + scrollPos,
-                            y + lineHeight,
+                            xPos + scrollPos,
+                            yPos + lineHeight,
                             destX,
                             destY,
                             charData.dest.width,
@@ -161,21 +160,18 @@ class Sprite extends Object {
                     }
                     textWidth = scrollPos;
                 case Tilemap:
+                    final cols = Math.floor(image.width / tileSize.x);
                     for (tile in 0...tiles.length) {
                         final tileNum = tiles[tile] - 1;
                         if (tileNum >= 0) {
-                            final cols = Std.int(image.width / tileSize.x);
-                            final tileCols = Std.int(tiles.length / mapWidth);
-
-                            // TODO: doesn't work for non-square maps
                             g2.drawScaledSubImage(
                                 image,
                                 (tileNum % cols) * tileSize.x,
                                 Math.floor(tileNum / cols) * tileSize.y,
                                 tileSize.x,
                                 tileSize.y,
-                                (tile % tileCols) * tileSize.x,
-                                Math.floor(tile / tileCols) * tileSize.y,
+                                x + (tile % mapWidth) * tileSize.x,
+                                y + Math.floor(tile / mapWidth) * tileSize.y,
                                 tileSize.x * scale.x * (flipX ? -1 : 1),
                                 tileSize.y * scale.y * (flipY ? -1 : 1)
                             );
@@ -186,13 +182,9 @@ class Sprite extends Object {
 
             g2.popTransformation();
             g2.popTransformation();
-            if (angle != 0.0) {
-                g2.popTransformation();
-            }
-        }
+            g2.popTransformation();
 
-        for (child in _children) {
-            if (child.visible) {
+            for (child in _children) {
                 child.render(g2, camera);
             }
         }
