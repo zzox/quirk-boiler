@@ -43,6 +43,8 @@ class Animation {
             animTime = 0;
             currentAnim = _animations[name];
             completed = false;
+            // HACK: without this a previous anim may play before the sprite is updated.
+            spriteRef.tileIndex = currentAnim.vals[0];
         }
     }
 
