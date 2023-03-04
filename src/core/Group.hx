@@ -17,7 +17,7 @@ class Group extends Sprite {
         }
     }
 
-    public function getNext () {
+    public function getNext ():Sprite {
         if (++index >= _children.length) {
             index = 0;
         }

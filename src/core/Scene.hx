@@ -32,7 +32,9 @@ class Scene {
         tweens.update(delta);
 
         for (sprite in sprites) {
-            sprite.update(delta);
+            if (sprite.active) {
+                sprite.update(delta);
+            }
         }
 
         // filter out destroyed sprites.

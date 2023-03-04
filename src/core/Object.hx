@@ -48,9 +48,9 @@ class Object {
                     child.update(delta);
                 }
             }
-
-            _children = _children.filter((sprite) -> !sprite.destroyed);
         }
+
+        _children = _children.filter((sprite) -> !sprite.destroyed);
     }
 
     // Set position of this object and it's physics body.
