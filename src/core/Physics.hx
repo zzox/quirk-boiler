@@ -34,6 +34,14 @@ class PhysicsBody {
     // Boolean values of 4 cardinal directions, true if they are touching
     // another physics body.
     public var touching:DirFlags;
+    // Boolean values of 4 cardinal directions, true if they allow collisions
+    // from a direction.
+    public var collides:DirFlags = {
+        left: true,
+        right: true,
+        up: true,
+        down: true
+    }
 
     public function new (parent:Object, size:IntVec2, position:Vec2, immovable:Bool = false) {
         this.parent = parent;
@@ -133,15 +141,17 @@ class Physics {
         body2:PhysicsBody,
         ?callback: (body1:PhysicsBody, body2:PhysicsBody) -> {}
     ):Bool {
+        var collided = false;
+
         final doesOverlap = overlap(body1, body2);
         if (doesOverlap) {
             // separate
             if (!body1.immovable && body2.immovable) {
-                checkDirectionalCollision(body1, body2, true);
+                collided = checkDirectionalCollision(body1, body2, true);
             }
 
             if (body1.immovable && !body2.immovable) {
-                checkDirectionalCollision(body2, body1, true);
+                collided = checkDirectionalCollision(body2, body1, true);
             }
 
             if (!body1.immovable && !body2.immovable) {
@@ -156,7 +166,7 @@ class Physics {
             }
         }
 
-        return doesOverlap;
+        return collided;
     }
 
     // Returns true if two physics bodies overlap.
@@ -170,43 +180,49 @@ class Physics {
     // Checks the collision directions and then sets the flags, optionally handles `separate`.
     // https://gamedev.stackexchange.com/questions/13774/how-do-i-detect-the-direction-of-2d-rectangular-object-collisions
     // NOTE: checking a perpedicular direction first may prevent seam-clipping.
-    function checkDirectionalCollision (fromBody:PhysicsBody, intoBody:PhysicsBody, separates:Bool) {
+    function checkDirectionalCollision (fromBody:PhysicsBody, intoBody:PhysicsBody, separates:Bool):Bool {
         // TODO: something like if abs(velocity.y) > abs(velocity.x) checkLeft(); checkRight();
-        if (fromBody.lastPos.x >= intoBody.position.x + intoBody.size.x
+        if (fromBody.collides.left && intoBody.collides.right
+            && fromBody.lastPos.x >= intoBody.position.x + intoBody.size.x
             && fromBody.position.x < intoBody.position.x + intoBody.size.x) {
             fromBody.touching.left = true;
             if (separates) {
                 separate(fromBody, intoBody, Left);
-                return;
+                return true;
             }
         }
 
-        if (fromBody.lastPos.x + fromBody.size.x <= intoBody.position.x
+        if (fromBody.collides.right && intoBody.collides.left
+            && fromBody.lastPos.x + fromBody.size.x <= intoBody.position.x
             && fromBody.position.x + fromBody.size.x > intoBody.position.x) {
             fromBody.touching.right = true;
             if (separates) {
                 separate(fromBody, intoBody, Right);
-                return;
+                return true;
             }
         }
 
-        if (fromBody.lastPos.y >= intoBody.position.y + intoBody.size.y
+        if (fromBody.collides.up && intoBody.collides.down
+            && fromBody.lastPos.y >= intoBody.position.y + intoBody.size.y
             && fromBody.position.y < intoBody.position.y + intoBody.size.y) {
             fromBody.touching.up = true;
             if (separates) {
                 separate(fromBody, intoBody, Up);
-                return;
+                return true;
             }
         }
 
-        if (fromBody.lastPos.y + fromBody.size.y <= intoBody.position.y
+        if (fromBody.collides.down && intoBody.collides.up
+            && fromBody.lastPos.y + fromBody.size.y <= intoBody.position.y
             && fromBody.position.y + fromBody.size.y > intoBody.position.y) {
             fromBody.touching.down = true;
             if (separates) {
                 separate(fromBody, intoBody, Down);
-                return;
+                return true;
             }
         }
+
+        return false;
     }
 
     // remove fromBody from toBody
