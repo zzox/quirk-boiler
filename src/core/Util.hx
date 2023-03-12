@@ -27,6 +27,10 @@ function toRadians (value:Float):Float {
     return value * (Math.PI / 180);
 }
 
+function toDegrees (value:Float):Float {
+    return value / (Math.PI / 180);
+}
+
 function distanceBetween (point1:Vec2, point2:Vec2):Float {
     return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
 }
@@ -46,5 +50,5 @@ function average (values:Array<Float>):Float {
 }
 
 function lerp (target:Float, current:Float, percent:Float):Float {
-    return (target - current) * percent;
+    return current + (target - current) * percent;
 }
