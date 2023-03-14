@@ -98,10 +98,8 @@ class AsciiFont implements BitmapFont {
 
     // Get data about the character from this font.
     public function getCharData (charString:String):CharData {
-        final char = charArray.contains(charString.charAt(0));
-
         // TODO: remove?
-        if (char == null) {
+        if (!charArray.contains(charString.charAt(0))) {
             throw 'No char found!';
         }
 
