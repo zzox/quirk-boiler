@@ -36,7 +36,7 @@ class Camera {
                 diffX = targetX - scroll.x;
             }
 
-            scroll.x += diffX;
+            scroll.x = diffX;
             scroll.x -= followOffset.x;
         }
 
@@ -48,7 +48,7 @@ class Camera {
                 diffY = targetY - scroll.y;
             }
 
-            scroll.y += diffY;
+            scroll.y = diffY;
             scroll.y -= followOffset.y;
         }
 
@@ -57,6 +57,8 @@ class Camera {
                 clamp(scroll.x, bounds.x, bounds.x + bounds.width - width),
                 clamp(scroll.y, bounds.y, bounds.y + bounds.height - height)
             );
+        } else {
+            scroll.set(scroll.x, scroll.y);
         }
     }
 

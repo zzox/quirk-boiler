@@ -119,8 +119,8 @@ class Sprite extends Object {
                         Math.floor(tileIndex / cols) * size.y,
                         size.x,
                         size.y,
-                        Math.floor(x + (flipX ? size.x * scale.x : 0)),
-                        Math.floor(y + (flipY ? size.y * scale.y : 0)),
+                        Math.floor(x + ((size.x - size.x * scale.x) / 2) + (flipX ? size.x * scale.x : 0)),
+                        Math.floor(y + ((size.y - size.y * scale.y) / 2) + (flipY ? size.y * scale.y : 0)),
                         size.x * scale.x * (flipX ? -1 : 1),
                         size.y * scale.y * (flipY ? -1 : 1)
                     );

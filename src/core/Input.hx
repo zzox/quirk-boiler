@@ -112,4 +112,8 @@ class KeysInput extends Input {
     public function justReleased (code:KeyCode):Bool {
         return _justReleased.contains(code);
     }
+
+    public function anyJustReleased (codes:Array<KeyCode>):Bool {
+        return (_justReleased.filter((c) -> codes.contains(c))).length > 0;
+    }
 }
