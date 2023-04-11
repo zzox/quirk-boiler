@@ -1,5 +1,6 @@
 package core;
 
+import core.ImageShader;
 import core.Input;
 import core.Types;
 import kha.Assets;
@@ -9,12 +10,8 @@ import kha.Image;
 import kha.Scaler;
 import kha.Scheduler;
 import kha.ScreenCanvas;
-import kha.Shaders;
 import kha.System;
-import kha.graphics4.FragmentShader;
 import kha.graphics4.PipelineState;
-import kha.graphics4.VertexData;
-import kha.graphics4.VertexStructure;
 import kha.input.Keyboard;
 import kha.input.Mouse;
 
@@ -109,7 +106,7 @@ class Game {
                 });
             });
 
-            setFullscreenShader(Shaders.painter_image_frag);
+            setFullscreenShader(makeBasePipelineShader());
         });
     }
 
@@ -200,15 +197,7 @@ class Game {
     }
 
     // Set the shader to be used to render the full screen.
-	public function setFullscreenShader (fragShader:FragmentShader) {
-		fullScreenPipeline = new PipelineState();
-		final structure = new VertexStructure();
-		structure.add("vertexPosition", VertexData.Float32_3X);
-		structure.add("vertexUV", VertexData.Float32_2X);
-		structure.add("vertexColor", VertexData.UInt8_4X_Normalized);
-		fullScreenPipeline.inputLayout = [structure];
-		fullScreenPipeline.vertexShader = Shaders.painter_image_vert;
-		fullScreenPipeline.fragmentShader = fragShader;
-		fullScreenPipeline.compile();
+	public function setFullscreenShader (imageShader:ImageShader) {
+        fullScreenPipeline = imageShader.pipeline;
 	}
 }
