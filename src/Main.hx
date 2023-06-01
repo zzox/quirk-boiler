@@ -1,7 +1,6 @@
 import core.Game;
 import core.Types;
-import game.data.Utils;
-import game.scenes.CardGameScene;
+import game.scenes.TestScene;
 
 #if kha_html5
 import js.Browser.document;
@@ -15,14 +14,10 @@ class Main {
         setFullWindowCanvas();
         new Game(
             new IntVec2(1300, 750),
-            new CardGameScene(),
+            new TestScene(),
             PixelPerfect,
             'boilerplate',
-            new IntVec2(320, 180),
-            (e) -> {
-                sendErrorLogs(e);
-                throw e;
-            }
+            new IntVec2(160, 90)
         );
 	}
 
