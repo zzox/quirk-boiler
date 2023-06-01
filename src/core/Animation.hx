@@ -19,7 +19,7 @@ class Animation {
     // Callback to call on completion of an animation. Won't call if repeats is
     // set to true.
     public var onComplete:String -> Void = (_:String) -> {};
-    var completed:Bool = false;
+    public var completed:Bool = false;
     var animTime:Float;
     var currentAnim:AnimItem;
 
@@ -67,5 +67,13 @@ class Animation {
         } else {
             spriteRef.tileIndex = currentAnim.vals[frameAnimTime % currentAnim.vals.length];
         }
+    }
+
+    public function getCurrentAnim ():Null<String> {
+        if (currentAnim != null) {
+            return currentAnim.name;
+        }
+
+        return null;
     }
 }

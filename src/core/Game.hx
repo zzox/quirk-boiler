@@ -3,6 +3,7 @@ package core;
 import core.ImageShader;
 import core.Input;
 import core.Types;
+import haxe.Exception;
 import kha.Assets;
 import kha.Color;
 import kha.Framebuffer;
@@ -65,10 +66,15 @@ class Game {
         initalScene:Scene,
         scaleMode:ScaleMode = None,
         ?name:String,
-        ?initialSize:IntVec2
+        ?initialSize:IntVec2,
+        ?exceptionHandler:Exception -> Void
     ) {
         this.scaleMode = scaleMode;
         this.size = size;
+
+        if (exceptionHandler == null) {
+            exceptionHandler = (e:Exception) -> throw e;
+        }
 
         System.start({ title: name, width: size.x, height: size.y }, (_window) -> {
             bufferSize = initialSize != null ? initialSize : size;
@@ -93,12 +99,24 @@ class Game {
 
             Assets.loadImage('made_with_kha', (_:Image) -> {
                 switchScene(new PreloadScene());
-                Scheduler.addTimeTask(() -> { update(); }, 0, 1 / 60);
+                Scheduler.addTimeTask(
+                    () -> {
+                        try { update(); } catch (e) { exceptionHandler(e); }
+                    },
+                    0,
+                    1 / 60
+                );
 
                 if (scaleMode == Full) {
-                    System.notifyOnFrames((frames) -> { render(frames[0]); });
+                    System.notifyOnFrames((frames) -> {
+                        try { render(frames[0]); } catch (e) { exceptionHandler(e); }
+                    });
                 } else {
-                    System.notifyOnFrames((frames) -> { renderScaled(frames[0]); });
+                    System.notifyOnFrames(
+                        (frames) -> {
+                            try { renderScaled(frames[0]); } catch (e) { exceptionHandler(e); }
+                        }
+                    );
                 }
 
                 Assets.loadEverything(() -> {
@@ -197,7 +215,7 @@ class Game {
     }
 
     // Set the shader to be used to render the full screen.
-	public function setFullscreenShader (imageShader:ImageShader) {
+    public function setFullscreenShader (imageShader:ImageShader) {
         fullScreenPipeline = imageShader.pipeline;
-	}
+    }
 }

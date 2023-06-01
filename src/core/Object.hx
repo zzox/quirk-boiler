@@ -69,7 +69,7 @@ class Object {
         }
     }
 
-    // The x and y balue of the middle of this sprite.
+    // Clones txhe x and y value of the middle of this sprite.
     public function getMidpoint ():Vec2 {
         return new Vec2(
             Std.int(x + (size.x / 2)),

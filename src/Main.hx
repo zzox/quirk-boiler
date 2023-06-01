@@ -1,6 +1,7 @@
 import core.Game;
 import core.Types;
-import game.scenes.TestScene;
+import game.data.Utils;
+import game.scenes.CardGameScene;
 
 #if kha_html5
 import js.Browser.document;
@@ -10,10 +11,20 @@ import kha.Macros;
 #end
 
 class Main {
-    public static function main() {
+	public static function main() {
         setFullWindowCanvas();
-        new Game(new IntVec2(1300, 750), new TestScene(), PixelPerfect, 'boilerplate', new IntVec2(320, 180));
-    }
+        new Game(
+            new IntVec2(1300, 750),
+            new CardGameScene(),
+            PixelPerfect,
+            'boilerplate',
+            new IntVec2(320, 180),
+            (e) -> {
+                sendErrorLogs(e);
+                throw e;
+            }
+        );
+	}
 
     // This handles the resizing on our own so we don't rely on kha's.
     // Requires `kha_html5_disable_automatic_size_adjust` define.
@@ -33,14 +44,8 @@ class Main {
                 w = window.innerWidth;
                 h = window.innerHeight;
             }
-            // canvas.width = Std.int(w * window.devicePixelRatio);
-            // canvas.height = Std.int(h * window.devicePixelRatio);
             canvas.width = Std.int(w);
             canvas.height = Std.int(h);
-            // if (canvas.style.width == '') {
-            // 	canvas.style.width = '100%';
-            // 	canvas.style.height = '100%';
-            // }
         }
         window.onresize = resize;
         resize();

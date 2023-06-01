@@ -8,7 +8,19 @@ enum TweenType {
     PingPong;
 }
 
-// TODO: add reflected tweens
+// from: easings.net
+typedef Easing = Float -> Float;
+
+function linear (input:Float):Float
+    return input;
+
+function easeInQuad (input:Float):Float
+    return input * input;
+
+function easeOutQuad (input:Float):Float
+    return 1.0 - (1.0 - input) * (1.0 - input);
+
+// TODO: add reflected tweens?
 class Tweens {
     var items:Array<Tween> = [];
 
@@ -44,12 +56,14 @@ class Tween {
     public var from:Float;
     public var to:Float;
     public var value:Float;
+    public var ease:Easing;
 
-    public function new (from:Float, to:Float, time:Float, ?callback:Void -> Void) {
+    public function new (from:Float, to:Float, time:Float, ?callback:Void -> Void, ?ease:Float -> Float) {
         this.time = time;
         this.callback = callback;
         this.from = from;
         this.to = to;
+        this.ease = ease == null ? linear : ease;
         value = from;
     }
 
@@ -71,7 +85,7 @@ class Tween {
             value = from;
         }
 
-        value = from + (to - from) * (forwards ? (elapsed / time) : 1 - (elapsed / time));
+        value = from + (to - from) * (forwards ? ease(elapsed / time) : 1 - ease(elapsed / time));
     }
 
     public function destroy () {

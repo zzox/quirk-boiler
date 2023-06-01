@@ -65,6 +65,7 @@ class Scene {
         sprites.push(sprite);
         sprite.scene = this;
         // ATTN: only one layer, needs to be recursive if we want to be nested
+        // this is slightly unclear^^
         for (child in sprite._children) {
             child.scene = this;
         }
