@@ -27,6 +27,8 @@ enum ScaleMode {
     time, the update and render loops, etc.
 **/
 class Game {
+    static inline final UPDATE_TIME:Float = 1 / 60;
+
     // Time since the game has been launched.  Updated by Kha's scheduler.
     public var currentTime:Float = 0.0;
 
@@ -104,7 +106,7 @@ class Game {
                         try { update(); } catch (e) { exceptionHandler(e); }
                     },
                     0,
-                    1 / 60
+                    UPDATE_TIME
                 );
 
                 if (scaleMode == Full) {
@@ -139,7 +141,7 @@ class Game {
         );
 
         currentScene.updateProgress(Assets.progress);
-        currentScene.update(delta);
+        currentScene.update(UPDATE_TIME);
         // physics.update(delta); // not used
         camera.update(delta);
 
