@@ -239,6 +239,11 @@ class Sprite extends Object {
         type = BitmapText;
     }
 
+    public function setBitmapText (text:String) {
+        this.text = text;
+        textWidth = bitmapFont.getTextWidth(text);
+    }
+
     // Make a tilemap. (mapWidth is in tiles not pixels)
     public function makeTilemap (tiles:Array<Int>, tileSize:IntVec2, mapWidth:Int) {
         this.tiles = tiles;

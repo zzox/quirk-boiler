@@ -43,7 +43,7 @@ function velocityFromAngle (angle:Float, velocity:Float):Vec2 {
 
 // from: https://stackoverflow.com/questions/2676719/calculating-the-angle-between-a-line-and-the-x-axis
 function angleFromPoints (p1:Vec2, p2:Vec2):Float {
-    return Math.atan2(p1.y - p2.y, p1.x - p2.x);
+    return toDegrees(Math.atan2(p1.y - p2.y, p1.x - p2.x));
 }
 
 function average (values:Array<Float>):Float {
