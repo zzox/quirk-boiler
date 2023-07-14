@@ -142,12 +142,12 @@ class Game {
 
         currentScene.updateProgress(Assets.progress);
         currentScene.update(UPDATE_TIME);
-        // physics.update(delta); // not used
-        camera.update(delta);
+        // physics.update(UPDATE_TIME); // not used
+        camera.update(UPDATE_TIME);
 
-        // after the sprites and scene to clear `justPressed`
-        keys.update(delta);
-        mouse.update(delta);
+        // after the scene to clear `justPressed`
+        keys.update(UPDATE_TIME);
+        mouse.update(UPDATE_TIME);
 
         currentTime = now;
     }
