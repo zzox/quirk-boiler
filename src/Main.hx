@@ -17,7 +17,7 @@ class Main {
             new TestScene(),
             PixelPerfect,
             'boilerplate',
-            new IntVec2(160, 90)
+            new IntVec2(320, 180)
         );
 	}
 
