@@ -269,4 +269,9 @@ class Sprite extends Object {
         _children.push(sprite);
         sprite.scene = this.scene;
     }
+
+    public function removeChild (sprite:Sprite) {
+        sprite.scene = null;
+        _children.remove(sprite);
+    }
 }

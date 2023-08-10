@@ -32,8 +32,11 @@ class Game {
     // Time since the game has been launched.  Updated by Kha's scheduler.
     public var currentTime:Float = 0.0;
 
-    // The current scene being updated and rendered.
-    var currentScene:Scene;
+    // The current list of scenes being updated and rendered.
+    var scenes:Array<Scene> = [];
+
+    // Scenes to be added to the current list of scenes.
+    var newScenes:Array<Scene> = [];
 
     // The backbuffer being drawn on to be scaled.  Not used in scaleMode `Fit`.
     var backbuffer:Image;
@@ -50,9 +53,6 @@ class Game {
     // Physics object.  Not really udpated now, may best be suited to turn
     // mthods into static.
     public var physics:Physics = new Physics();
-
-    // Main and only camera.
-    public var camera:Camera;
 
     // Size of the game, meant to _not_ change for the time being.
     public var size:IntVec2;
@@ -82,8 +82,6 @@ class Game {
             bufferSize = initialSize != null ? initialSize : size;
             backbuffer = Image.createRenderTarget(bufferSize.x, bufferSize.y);
             backbuffer.g2.imageScaleQuality = Low;
-
-            camera = new Camera(0, 0, bufferSize.x, bufferSize.y);
 
             // just the movement is PP or None, not `Full`
             if (scaleMode == Full) {
@@ -135,39 +133,61 @@ class Game {
         final delta = now - currentTime;
 
         // update mouse for camera position
+        final camExists = scenes[0] != null;
         mouse.setMousePos(
-            Std.int(camera.scroll.x + mouse.screenPos.x / camera.scale.x),
-            Std.int(camera.scroll.y + mouse.screenPos.y / camera.scale.y)
+            Std.int(
+                (camExists ? scenes[0].camera.scroll.x : 0) + mouse.screenPos.x /
+                (camExists ? scenes[0].camera.scale.x : 0)
+            ),
+            Std.int(
+                (camExists ? scenes[0].camera.scroll.y : 0) + mouse.screenPos.y /
+                (camExists ? scenes[0].camera.scale.y : 0)
+            )
         );
 
-        currentScene.updateProgress(Assets.progress);
-        currentScene.update(UPDATE_TIME);
-        // physics.update(UPDATE_TIME); // not used
-        camera.update(UPDATE_TIME);
+        for (s in newScenes) scenes.push(s);
+        newScenes = [];
+        for (s in scenes) {
+            if (!s.isPaused) {
+                s.updateProgress(Assets.progress);
+                s.update(delta);
+            }
+        }
+        scenes = scenes.filter((s) -> !s._destroyed);
 
-        // after the scene to clear `justPressed`
-        keys.update(UPDATE_TIME);
-        mouse.update(UPDATE_TIME);
+        // after the sprites and scene to clear `justPressed`
+        keys.update(delta);
+        mouse.update(delta);
 
         currentTime = now;
     }
 
     function render (framebuffer:Framebuffer) {
-        framebuffer.g2.begin(true, camera.bgColor);
-        currentScene.render(framebuffer.g2, camera);
+        framebuffer.g2.begin(true);
+        for (s in scenes) {
+            framebuffer.g2.clear(s.camera.bgColor);
+            s.render(backbuffer.g2);
+        }
 #if debug_physics
-        currentScene.renderDebug(framebuffer.g2, camera);
+        for (s in scenes) s.renderDebug(framebuffer.g2);
 #end
         framebuffer.g2.pipeline = fullScreenPipeline;
         framebuffer.g2.end();
     }
 
     function renderScaled (framebuffer:Framebuffer) {
-        backbuffer.g2.begin(true, camera.bgColor);
-        currentScene.render(backbuffer.g2, camera);
-#if debug_physics
-        currentScene.renderDebug(backbuffer.g2, camera);
-#end
+        backbuffer.g2.begin(true);
+
+        if (scenes[0] != null) {
+            backbuffer.g2.clear(scenes[0].camera.bgColor);
+        }
+
+        for (s in scenes) {
+            s.render(backbuffer.g2);
+        }
+        #if debug_physics
+        for (s in scenes) s.renderDebug(backbuffer.g2);
+        #end
         backbuffer.g2.end();
 
         framebuffer.g2.begin(true, Color.Black);
@@ -199,25 +219,33 @@ class Game {
         }
     }
 
-    // Switches the currently updated and rendered scene to a new one. Destroys
-    // the previous scene.
+    // Switches the currently updated and rendered scene(s) to a new one. Destroys
+    // _all_ of the previous scenes.
     public function switchScene (scene:Scene, ?callback:Void -> Void) {
-        if (currentScene != null) {
-            scene.destroy();
-        }
+        for (s in scenes) s.destroy();
+        // scenes = [];
 
-        camera = new Camera(0, 0, bufferSize.x, bufferSize.y);
-        scene.game = this;
-        scene.create();
-        currentScene = scene;
+        addScene(scene);
 
         if (callback != null) {
             callback();
         }
     }
 
+    public function removeScene (scene:Scene) {
+        scene.destroy();
+        scenes.filter((s) -> s != scene);
+    }
+
+    public function addScene (scene:Scene) {
+        newScenes.push(scene);
+        scene.game = this;
+        scene.camera = new Camera(0, 0, bufferSize.x, bufferSize.y);
+        scene.create();
+    }
+
     // Set the shader to be used to render the full screen.
     public function setFullscreenShader (imageShader:ImageShader) {
         fullScreenPipeline = imageShader.pipeline;
-    }
+	}
 }

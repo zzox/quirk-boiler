@@ -8,6 +8,12 @@ class Scene {
     // store a reference to the parent game
     public var game:Game;
 
+    // Main and only camera.
+    public var camera:Camera;
+
+    // Is this scene paused.
+    public var isPaused:Bool = false;
+
     // this scene's sprites
     public var sprites:Array<Sprite> = [];
 
@@ -23,6 +29,9 @@ class Scene {
         tweens = new Tweens();
     }
 
+    // True if the scene has been destroyed and is to be filtered out.
+    public var _destroyed:Bool = false;
+
     // base create, called right before scene starts
     public function create () {}
 
@@ -37,6 +46,9 @@ class Scene {
             }
         }
 
+        // physics.update(delta); // not used
+        camera.update(delta);
+
         // filter out destroyed sprites.
         sprites = sprites.filter((sprite) -> !sprite.destroyed);
     }
@@ -45,7 +57,7 @@ class Scene {
     public function updateProgress (progress:Float) {}
 
     // called when drawing, passes in graphics instance
-    public function render (graphics:Graphics, camera:Camera) {
+    public function render (graphics:Graphics) {
         for (sprite in sprites) {
             sprite.render(graphics, camera);
         }
@@ -53,7 +65,7 @@ class Scene {
 
 #if debug_physics
     // called when drawing, passes in graphics instance
-    public function renderDebug (graphics:Graphics, camera:Camera) {
+    public function renderDebug (graphics:Graphics) {
         for (sprite in sprites) {
             sprite.renderDebug(graphics, camera);
         }
@@ -65,7 +77,6 @@ class Scene {
         sprites.push(sprite);
         sprite.scene = this;
         // ATTN: only one layer, needs to be recursive if we want to be nested
-        // this is slightly unclear^^
         for (child in sprite._children) {
             child.scene = this;
         }
@@ -78,6 +89,7 @@ class Scene {
 
     // Destroy everything, called right before the scene switches.
     public function destroy () {
+        _destroyed = true;
         timers.destroy();
         tweens.destroy();
 

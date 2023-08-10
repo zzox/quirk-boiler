@@ -13,13 +13,13 @@ class PreloadScene extends Scene {
     var pro:Float = 0;
 
     override public function create () {
-        barWidth = Std.int(game.camera.width / 2);
-        barPos = new IntVec2(Std.int(barWidth / 2), Std.int(game.camera.height * 3 / 4));
+        barWidth = Std.int(camera.width / 2);
+        barPos = new IntVec2(Std.int(barWidth / 2), Std.int(camera.height * 3 / 4));
 
         final imageAsset = Assets.images.made_with_kha;
 
         addSprite(new Sprite(
-            new Vec2(game.camera.width / 2 - imageAsset.width / 2, game.camera.height / 4),
+            new Vec2(camera.width / 2 - imageAsset.width / 2, camera.height / 4),
             imageAsset
         ));
 

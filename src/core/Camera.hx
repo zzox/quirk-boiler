@@ -13,6 +13,8 @@ class Camera {
     public var scale:Vec2 = new Vec2(1, 1);
     public var height:Int;
     public var width:Int;
+
+    // bgColor only works on the first scene in the scene list
     public var bgColor:kha.Color = Color.Black;
     public var followX:Null<Sprite> = null;
     public var followY:Null<Sprite> = null;

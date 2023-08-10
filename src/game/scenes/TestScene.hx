@@ -7,12 +7,12 @@ import kha.Color;
 import kha.graphics2.Graphics;
 
 class TestScene extends Scene {
-    override public function update (delta:Float) {
+    override function update (delta:Float) {
         super.update(delta);
     }
 
-    override public function render (g2:Graphics, camera:Camera) {
-        super.render(g2, camera);
+    override function render (g2:Graphics) {
+        super.render(g2);
 
         g2.color = Color.Red;
         g2.drawRect(10, 20, 30, 40);
