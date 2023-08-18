@@ -99,6 +99,11 @@ class Game {
 
             Assets.loadImage('made_with_kha', (_:Image) -> {
                 switchScene(new PreloadScene());
+
+                // HACK: run `update()` once to get preload scene from `newScenes` to `scenes`.
+                // This kicks off the game.
+                try { update(); } catch (e) { exceptionHandler(e); }
+
                 Scheduler.addTimeTask(
                     () -> {
                         try { update(); } catch (e) { exceptionHandler(e); }
@@ -150,14 +155,14 @@ class Game {
         for (s in scenes) {
             if (!s.isPaused) {
                 s.updateProgress(Assets.progress);
-                s.update(delta);
+                s.update(UPDATE_TIME);
             }
         }
         scenes = scenes.filter((s) -> !s._destroyed);
 
-        // after the sprites and scene to clear `justPressed`
-        keys.update(delta);
-        mouse.update(delta);
+        // after the scenes to clear `justPressed`
+        keys.update(UPDATE_TIME);
+        mouse.update(UPDATE_TIME);
 
         currentTime = now;
     }
