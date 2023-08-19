@@ -149,7 +149,7 @@ class Sprite extends Object {
                         g2.drawSubImage(
                             image,
                             xPos + scrollPos,
-                            yPos + lineHeight,
+                            yPos + lineHeight + charData.yOffset,
                             destX,
                             destY,
                             charData.dest.width,

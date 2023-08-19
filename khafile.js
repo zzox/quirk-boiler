@@ -8,6 +8,7 @@ project.addAssets('assets/data/**/*.tmx');
 project.addAssets('assets/music/**/*.wav');
 project.addAssets('assets/audio/**/*.wav');
 project.addAssets('assets/fonts/**/*.ttf');
+project.addAssets('assets/fonts/**/*.fnt');
 project.addAssets('assets/fonts/**/*.png');
 project.addAssets('assets/index.html');
 
