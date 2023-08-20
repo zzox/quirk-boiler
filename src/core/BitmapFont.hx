@@ -185,7 +185,6 @@ class FntBitmapFont implements BitmapFont {
     // Get data about the character from this font.
     public function getCharData (charString:String):CharData {
         final char = charString.charAt(0);
-        trace('getting char', char);
 
         // TODO: remove?
         if (char == null) {
