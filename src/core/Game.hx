@@ -67,9 +67,10 @@ class Game {
         size:IntVec2,
         initalScene:Scene,
         scaleMode:ScaleMode = None,
-        ?name:String,
+        name:String,
         ?initialSize:IntVec2,
-        ?exceptionHandler:Exception -> Void
+        ?exceptionHandler:Exception -> Void,
+        ?compressedAudioFilter:Dynamic -> Bool
     ) {
         this.scaleMode = scaleMode;
         this.size = size;
@@ -124,9 +125,11 @@ class Game {
                     );
                 }
 
+                function allAssets (_:Dynamic) return true;
+
                 Assets.loadEverything(() -> {
                     switchScene(initalScene);
-                });
+                }, null, compressedAudioFilter != null ? compressedAudioFilter : allAssets);
             });
 
             setFullscreenShader(makeBasePipelineShader());
@@ -252,5 +255,5 @@ class Game {
     // Set the shader to be used to render the full screen.
     public function setFullscreenShader (imageShader:ImageShader) {
         fullScreenPipeline = imageShader.pipeline;
-	}
+    }
 }

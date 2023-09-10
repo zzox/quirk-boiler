@@ -1,4 +1,5 @@
 import core.Game;
+import core.Logs;
 import core.Types;
 import game.scenes.TestScene;
 
@@ -17,7 +18,17 @@ class Main {
             new TestScene(),
             PixelPerfect,
             'boilerplate',
-            new IntVec2(320, 180)
+            new IntVec2(320, 180),
+            (e) -> {
+                sendErrorLogs(e);
+                throw e;
+            },
+            (item:Dynamic) -> {
+                if (item.type == 'sound' && StringTools.contains(item.files[0], 'random-string-here')) {
+                    return false;
+                }
+                return true;
+            }
         );
 	}
 

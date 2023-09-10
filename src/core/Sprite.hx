@@ -17,11 +17,18 @@ enum SpriteType {
     Text;
     BitmapText;
     Tilemap;
+    NineSliceImage;
 }
 
 typedef Line = {
     var to:Vec2;
     var width:Float;
+}
+
+typedef NineSliceData = {
+    var topLeft:IntVec2;
+    var bottomRight:IntVec2;
+    var size:IntVec2;
 }
 
 /**
@@ -76,6 +83,8 @@ class Sprite extends Object {
     public var bitmapFont:BitmapFont;
     // The width of the text characters.
     public var textWidth:Int;
+    // 4 points in nineslicegrid
+    var nineSliceData:NineSliceData;
 
     public function new (position:Vec2, ?image:Image, ?size:IntVec2) {
         if (image != null && size == null) {
@@ -177,6 +186,117 @@ class Sprite extends Object {
                             );
                         }
                     }
+                case NineSliceImage:
+                    final cols = Std.int(image.width / size.x);
+
+                    // Upper-left quadrant
+                    g2.drawSubImage(
+                        image,
+                        x,
+                        y,
+                        (tileIndex % cols) * size.x,
+                        Math.floor(tileIndex / cols) * size.y,
+                        nineSliceData.topLeft.x,
+                        nineSliceData.topLeft.y
+                    );
+
+                    // Upper-middle quadrant
+                    g2.drawScaledSubImage(
+                        image,
+                        (tileIndex % cols) * size.x + nineSliceData.topLeft.x,
+                        Math.floor(tileIndex / cols) * size.y,
+                        nineSliceData.bottomRight.x - nineSliceData.topLeft.x,
+                        nineSliceData.topLeft.y,
+                        x + nineSliceData.topLeft.x,
+                        y,
+                        nineSliceData.size.x - nineSliceData.topLeft.x - (size.x - nineSliceData.bottomRight.x),
+                        nineSliceData.topLeft.y
+                    );
+
+                    // Upper-right quadrant
+                    g2.drawSubImage(
+                        image,
+                        x + (nineSliceData.size.x - (size.x - nineSliceData.bottomRight.x)),
+                        y,
+                        (tileIndex % cols) * size.x + nineSliceData.bottomRight.x,
+                        Math.floor(tileIndex / cols) * size.y,
+                        size.x - nineSliceData.bottomRight.x,
+                        nineSliceData.topLeft.y
+                    );
+
+                    // Middle-left quadrant
+                    g2.drawScaledSubImage(
+                        image,
+                        (tileIndex % cols) * size.x,
+                        Math.floor(tileIndex / cols) * size.y + nineSliceData.topLeft.y,
+                        nineSliceData.topLeft.x,
+                        nineSliceData.bottomRight.y - nineSliceData.topLeft.y,
+                        x,
+                        y + nineSliceData.topLeft.y,
+                        nineSliceData.topLeft.x,
+                        nineSliceData.size.y - nineSliceData.topLeft.y - (size.y - nineSliceData.bottomRight.y)
+                    );
+
+                    // Middle-middle quadrant
+                    g2.drawScaledSubImage(
+                        image,
+                        (tileIndex % cols) * size.x + nineSliceData.topLeft.x,
+                        Math.floor(tileIndex / cols) * size.y + nineSliceData.topLeft.y,
+                        nineSliceData.bottomRight.x - nineSliceData.topLeft.x,
+                        nineSliceData.bottomRight.y - nineSliceData.topLeft.y,
+                        x + nineSliceData.topLeft.x,
+                        y + nineSliceData.topLeft.y,
+                        nineSliceData.size.x - nineSliceData.topLeft.x - (size.x - nineSliceData.bottomRight.x),
+                        nineSliceData.size.y - nineSliceData.topLeft.y - (size.y - nineSliceData.bottomRight.y)
+                    );
+
+                    // Middle-right quadrant
+                    g2.drawScaledSubImage(
+                        image,
+                        (tileIndex % cols) * size.x + nineSliceData.bottomRight.x,
+                        Math.floor(tileIndex / cols) * size.y + nineSliceData.topLeft.y,
+                        size.x - nineSliceData.bottomRight.x,
+                        nineSliceData.bottomRight.y - nineSliceData.topLeft.y,
+                        x + nineSliceData.size.x - (size.x - nineSliceData.bottomRight.x),
+                        y + nineSliceData.topLeft.y,
+                        size.x - nineSliceData.bottomRight.x,
+                        nineSliceData.size.y - nineSliceData.topLeft.y - (size.y - nineSliceData.bottomRight.y)
+                    );
+
+                    // Bottom-left quadrant
+                    g2.drawSubImage(
+                        image,
+                        x,
+                        y + (nineSliceData.size.y - (size.y - nineSliceData.bottomRight.y)),
+                        (tileIndex % cols) * size.x,
+                        Math.floor(tileIndex / cols) * size.y + nineSliceData.bottomRight.y,
+                        nineSliceData.topLeft.x,
+                        size.y - nineSliceData.bottomRight.y
+                    );
+
+                    // Bottom-middle quadrant
+                    g2.drawScaledSubImage(
+                        image,
+                        (tileIndex % cols) * size.x + nineSliceData.topLeft.x,
+                        Math.floor(tileIndex / cols) * size.y + nineSliceData.bottomRight.y,
+                        nineSliceData.bottomRight.x - nineSliceData.topLeft.x,
+                        size.y - nineSliceData.bottomRight.y,
+                        x + nineSliceData.topLeft.x,
+                        y + (nineSliceData.size.y - (size.y - nineSliceData.bottomRight.y)),
+                        nineSliceData.size.x - nineSliceData.topLeft.x - (size.x - nineSliceData.bottomRight.x),
+                        size.y - nineSliceData.bottomRight.y
+                    );
+
+                    // Bottom-right quadrant
+                    g2.drawSubImage(
+                        image,
+                        x + (nineSliceData.size.x - (size.x - nineSliceData.bottomRight.x)),
+                        y + (nineSliceData.size.y - (size.y - nineSliceData.bottomRight.y)),
+                        (tileIndex % cols) * size.x + nineSliceData.bottomRight.x,
+                        Math.floor(tileIndex / cols) * size.y + nineSliceData.bottomRight.y,
+                        size.x - nineSliceData.bottomRight.x,
+                        size.y - nineSliceData.bottomRight.y
+                    );
                 case None: null;
             }
 
@@ -250,6 +370,16 @@ class Sprite extends Object {
         this.tileSize = tileSize;
         this.mapWidth = mapWidth;
         type = Tilemap;
+    }
+
+    // make a nine slize image. does not scale or flip.
+    public function makeNineSliceImage (size:IntVec2, topLeft:IntVec2, bottomRight:IntVec2) {
+        nineSliceData = {
+            size: size,
+            topLeft: topLeft,
+            bottomRight: bottomRight
+        }
+        type = NineSliceImage;
     }
 
     // Stops sprite from being updated _or_ drawn.

@@ -20,4 +20,8 @@ project.addSources('src');
 
 project.addDefine('kha_html5_disable_automatic_size_adjust');
 
+// to send metrics locally or live, if at all.
+project.addDefine('sends_metrics');
+project.addDefine('localhost');
+
 resolve(project);

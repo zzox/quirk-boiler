@@ -175,7 +175,7 @@ class FntBitmapFont implements BitmapFont {
                         width: fntMap['width'],
                         height: fntMap['height']
                     },
-                    width: Std.int(fntMap['xadvance']) - Std.int(fntMap['xoffset']),
+                    width: Std.int(fntMap['xadvance']) - Std.int(fntMap['xoffset']) - 1,
                     yOffset: fntMap['yoffset']
                 });
             }
