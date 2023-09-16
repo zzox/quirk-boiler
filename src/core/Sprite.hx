@@ -341,7 +341,7 @@ class Sprite extends Object {
     public function makeLine (to:Vec2, width:Int, color:Int) {
         line = { to: to, width: width };
         this.color = color;
-        type = Image;
+        type = Line;
     }
 
     // Make line of text.
