@@ -180,7 +180,8 @@ class Physics {
     // Checks the collision directions and then sets the flags, optionally handles `separate`.
     // https://gamedev.stackexchange.com/questions/13774/how-do-i-detect-the-direction-of-2d-rectangular-object-collisions
     // NOTE: checking a perpedicular direction first may prevent seam-clipping.
-    function checkDirectionalCollision (fromBody:PhysicsBody, intoBody:PhysicsBody, separates:Bool):Bool {
+    // NOTE: moved the returns outside of the separates checks, may affect backwards-compat.
+    public function checkDirectionalCollision (fromBody:PhysicsBody, intoBody:PhysicsBody, separates:Bool):Bool {
         // TODO: something like if abs(velocity.y) > abs(velocity.x) checkLeft(); checkRight();
         if (fromBody.collides.left && intoBody.collides.right
             && fromBody.lastPos.x >= intoBody.position.x + intoBody.size.x
@@ -188,8 +189,8 @@ class Physics {
             fromBody.touching.left = true;
             if (separates) {
                 separate(fromBody, intoBody, Left);
-                return true;
             }
+            return true;
         }
 
         if (fromBody.collides.right && intoBody.collides.left
@@ -198,8 +199,8 @@ class Physics {
             fromBody.touching.right = true;
             if (separates) {
                 separate(fromBody, intoBody, Right);
-                return true;
             }
+            return true;
         }
 
         if (fromBody.collides.up && intoBody.collides.down
@@ -208,8 +209,8 @@ class Physics {
             fromBody.touching.up = true;
             if (separates) {
                 separate(fromBody, intoBody, Up);
-                return true;
             }
+            return true;
         }
 
         if (fromBody.collides.down && intoBody.collides.up
@@ -218,8 +219,8 @@ class Physics {
             fromBody.touching.down = true;
             if (separates) {
                 separate(fromBody, intoBody, Down);
-                return true;
             }
+            return true;
         }
 
         return false;

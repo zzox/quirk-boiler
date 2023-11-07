@@ -20,6 +20,12 @@ function easeInQuad (input:Float):Float
 function easeOutQuad (input:Float):Float
     return 1.0 - (1.0 - input) * (1.0 - input);
 
+function easeInCubic (input:Float):Float
+    return input * input * input;
+
+function easeOutCubic (input:Float):Float
+    return 1.0 - Math.pow(1.0 - input, 3);
+
 // TODO: add reflected tweens?
 class Tweens {
     var items:Array<Tween> = [];

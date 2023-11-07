@@ -60,8 +60,11 @@ class Game {
     // Size of the buffer.
     public var bufferSize:IntVec2;
 
+    // The pipeline used to render the backbuffer.
+    // var backbufferPipeline: PipelineState;
+
     // The pipeline used to render the full screen.
-    static var fullScreenPipeline: PipelineState;
+    var fullScreenPipeline: PipelineState;
 
     public function new (
         size:IntVec2,
@@ -133,6 +136,7 @@ class Game {
             });
 
             setFullscreenShader(makeBasePipelineShader());
+            // setBackbufferShader(makeBasePipelineShader());
         });
     }
 
@@ -172,6 +176,7 @@ class Game {
 
     function render (framebuffer:Framebuffer) {
         framebuffer.g2.begin(true);
+        framebuffer.g2.pipeline = fullScreenPipeline;
         for (s in scenes) {
             framebuffer.g2.clear(s.camera.bgColor);
             s.render(backbuffer.g2);
@@ -179,7 +184,6 @@ class Game {
 #if debug_physics
         for (s in scenes) s.renderDebug(framebuffer.g2);
 #end
-        framebuffer.g2.pipeline = fullScreenPipeline;
         framebuffer.g2.end();
     }
 
@@ -196,9 +200,10 @@ class Game {
         #if debug_physics
         for (s in scenes) s.renderDebug(backbuffer.g2);
         #end
+        // backbuffer.g2.pipeline = backbufferPipeline;
         backbuffer.g2.end();
 
-        framebuffer.g2.begin(true, Color.Black);
+        framebuffer.g2.begin(true, 0xff000000);
         framebuffer.g2.pipeline = fullScreenPipeline;
         if (scaleMode == PixelPerfect) {
             ScalerExp.scalePixelPerfect(backbuffer, framebuffer);
@@ -251,6 +256,12 @@ class Game {
         scene.camera = new Camera(0, 0, bufferSize.x, bufferSize.y);
         scene.create();
     }
+
+    // // Set the shader to be used to render the backbuffer.
+    // NOTE: commented out because it draws black over sprites behind it
+    // public function setBackbufferShader (imageShader:ImageShader) {
+    //     backbufferPipeline = imageShader.pipeline;
+    // }
 
     // Set the shader to be used to render the full screen.
     public function setFullscreenShader (imageShader:ImageShader) {

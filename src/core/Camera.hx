@@ -34,9 +34,11 @@ class Camera {
             final targetX = followX.getMidpoint().x - (width / 2) / scale.x;
             var diffX = lerp(targetX, scroll.x, followLerp.x);
 
-            if (Math.abs(diffX) < MIN_LERP_DISTANCE) {
-                diffX = targetX - scroll.x;
-            }
+            // NOTE: removed because it caused stuttering
+            // lerp and camera follows together doesnt work right now
+            // if (Math.abs(diffX) < MIN_LERP_DISTANCE) {
+            //     diffX = targetX - scroll.x;
+            // }
 
             scroll.x = diffX;
             scroll.x -= followOffset.x;
@@ -46,9 +48,11 @@ class Camera {
             final targetY = followY.getMidpoint().y - (height / 2) / scale.y;
             var diffY = lerp(targetY, scroll.y, followLerp.y);
 
-            if (Math.abs(diffY) < MIN_LERP_DISTANCE) {
-                diffY = targetY - scroll.y;
-            }
+            // NOTE: removed because it caused stuttering
+            // lerp and camera follows together doesnt work right now
+            // if (Math.abs(diffY) < MIN_LERP_DISTANCE) {
+            //     diffY = targetY - scroll.y;
+            // }
 
             scroll.y = diffY;
             scroll.y -= followOffset.y;

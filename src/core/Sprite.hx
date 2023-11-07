@@ -110,6 +110,8 @@ class Sprite extends Object {
 
     // Draw this sprite.
     public function render (g2:Graphics, camera:Camera) {
+        // BUG: in the case where alpha is less than 1 / 256 and the color is
+        // black (0xff000000), black will be the color instead of a light alpha.
         if (visible) {
             g2.color = Math.floor(alpha * 256) * 0x1000000 + color;
 
