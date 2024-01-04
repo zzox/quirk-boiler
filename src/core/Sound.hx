@@ -23,4 +23,16 @@ class Sound {
         channel.pause();
         return channel;
     }
+
+    // Stream uncompressed audio. Returns an AudioChannel. (Some items are not immediately available)
+    public static function stream (sound:kha.Sound, volume:Float = 1.0, loop:Bool = false):AudioChannel {
+        final channel = Audio.stream(sound, loop);
+        // TODO: test this more thoroughly.
+        if (channel == null) {
+            throw 'Cannot stream';
+        }
+
+        channel.volume = volume;
+        return channel;
+    }
 }

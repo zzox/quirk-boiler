@@ -72,8 +72,8 @@ class Object {
     // Clones txhe x and y value of the middle of this sprite.
     public function getMidpoint ():Vec2 {
         return new Vec2(
-            Std.int(x + (size.x / 2)),
-            Std.int(y + (size.y / 2))
+            x + (size.x / 2),
+            y + (size.y / 2)
         );
     }
 }
