@@ -358,6 +358,7 @@ class Sprite extends Object {
     public function makeBitmapText (text:String, font:BitmapFont) {
         this.text = text;
         this.bitmapFont = font;
+        textWidth = bitmapFont.getTextWidth(text);
         type = BitmapText;
     }
 

@@ -54,7 +54,7 @@ class Game {
     // mthods into static.
     public var physics:Physics = new Physics();
 
-    // Size of the game, meant to _not_ change for the time being.
+    // Size of the game.
     public var size:IntVec2;
 
     // Size of the buffer.
@@ -84,8 +84,10 @@ class Game {
 
         System.start({ title: name, width: size.x, height: size.y }, (_window) -> {
             bufferSize = initialSize != null ? initialSize : size;
-            backbuffer = Image.createRenderTarget(bufferSize.x, bufferSize.y);
-            backbuffer.g2.imageScaleQuality = Low;
+            if (scaleMode != Full) {
+                backbuffer = Image.createRenderTarget(bufferSize.x, bufferSize.y);
+                backbuffer.g2.imageScaleQuality = Low;
+            }
 
             // just the movement is PP or None, not `Full`
             if (scaleMode == Full) {
@@ -95,7 +97,8 @@ class Game {
                 Mouse.get().notify(mouse.pressMouse, mouse.releaseMouse, onMouseMove);
             }
 
-            Mouse.get().hideSystemCursor();
+            // for WEGO
+            // Mouse.get().hideSystemCursor();
 
             if (Keyboard.get() != null) {
                 Keyboard.get().notify(keys.pressButton, keys.releaseButton);
@@ -164,6 +167,12 @@ class Game {
                 s.updateProgress(Assets.progress);
                 s.update(UPDATE_TIME);
             }
+
+            // resize the camera if we use the `Full` scale mode.
+            if (scaleMode == Full) {
+                s.camera.width = size.x;
+                s.camera.height = size.y;
+            }
         }
         scenes = scenes.filter((s) -> !s._destroyed);
 
@@ -175,11 +184,16 @@ class Game {
     }
 
     function render (framebuffer:Framebuffer) {
+        size.set(framebuffer.width, framebuffer.height);
+
         framebuffer.g2.begin(true);
-        framebuffer.g2.pipeline = fullScreenPipeline;
+
+        if (scenes[0] != null) {
+            framebuffer.g2.clear(scenes[0].camera.bgColor);
+        }
+
         for (s in scenes) {
-            framebuffer.g2.clear(s.camera.bgColor);
-            s.render(backbuffer.g2);
+            s.render(framebuffer.g2);
         }
 #if debug_physics
         for (s in scenes) s.renderDebug(framebuffer.g2);
@@ -188,6 +202,8 @@ class Game {
     }
 
     function renderScaled (framebuffer:Framebuffer) {
+        size.set(framebuffer.width, framebuffer.height);
+
         backbuffer.g2.begin(true);
 
         if (scenes[0] != null) {

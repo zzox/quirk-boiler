@@ -35,6 +35,11 @@ function distanceBetween (point1:Vec2, point2:Vec2):Float {
     return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
 }
 
+// should be this one vvv
+function distanceBetween2 (p1x:Float, p1y:Float, p2x:Float, p2y:Float):Float {
+    return Math.sqrt(Math.pow(p1x - p2x, 2) + Math.pow(p1y - p2y, 2));
+}
+
 // from: https://github.com/HaxeFlixel/flixel/blob/dev/flixel/math/FlxVelocity.hx
 function velocityFromAngle (angle:Float, velocity:Float):Vec2 {
     final a = toRadians(angle);
@@ -44,6 +49,10 @@ function velocityFromAngle (angle:Float, velocity:Float):Vec2 {
 // from: https://stackoverflow.com/questions/2676719/calculating-the-angle-between-a-line-and-the-x-axis
 function angleFromPoints (p1:Vec2, p2:Vec2):Float {
     return toDegrees(Math.atan2(p1.y - p2.y, p1.x - p2.x));
+}
+
+function angleFromPoints2 (p1x:Float, p1y:Float, p2x:Float, p2y:Float):Float {
+    return toDegrees(Math.atan2(p1y - p2y, p1x - p2x));
 }
 
 function average (values:Array<Float>):Float {
