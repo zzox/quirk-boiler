@@ -116,4 +116,32 @@ class KeysInput extends Input {
     public function anyJustReleased (codes:Array<KeyCode>):Bool {
         return (_justReleased.filter((c) -> codes.contains(c))).length > 0;
     }
+
+    public function longestHeld (codes:Array<KeyCode>):Null<KeyButtonData> {
+        return Lambda.fold(
+            _pressed.filter((button) -> codes.contains(button.code)),
+            (item:KeyButtonData, result:Null<KeyButtonData>) -> {
+                if (result == null || item.time > result.time) {
+                    return item;
+                }
+
+                return result;
+            },
+            null
+        );
+    }
+
+    public function shortestHeld (codes:Array<KeyCode>):Null<KeyButtonData> {
+        return Lambda.fold(
+            _pressed.filter((button) -> codes.contains(button.code)),
+            (item:KeyButtonData, result:Null<KeyButtonData>) -> {
+                if (result == null || item.time < result.time) {
+                    return item;
+                }
+
+                return result;
+            },
+            null
+        );
+    }
 }
