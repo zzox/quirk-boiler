@@ -22,6 +22,7 @@ class Animation {
     public var completed:Bool = false;
     var animTime:Float;
     var currentAnim:AnimItem;
+    var isPaused = false;
 
     public function new (spriteRef:Sprite) {
         this.spriteRef = spriteRef;
@@ -39,6 +40,7 @@ class Animation {
 
     // Play animation by name.  Won't restart same anim unless forced.
     public function play (name:String, forceRestart:Bool = false) {
+        isPaused = false;
         if (forceRestart || currentAnim == null || name != currentAnim.name) {
             animTime = 0;
             currentAnim = _animations[name];
@@ -50,7 +52,7 @@ class Animation {
 
     // Update the sprtites tileIndex based on animation.
     public function update (delta:Float) {
-        if (currentAnim == null) {
+        if (currentAnim == null || isPaused) {
             return;
         }
 
@@ -75,5 +77,9 @@ class Animation {
         }
 
         return null;
+    }
+
+    public function pause () {
+        isPaused = true;
     }
 }
