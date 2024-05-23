@@ -351,6 +351,7 @@ class Sprite extends Object {
         this.text = text;
         this.font = font;
         this.fontSize = fontSize;
+        textWidth = Std.int(font.width(fontSize, text));
         type = Text;
     }
 
