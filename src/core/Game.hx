@@ -61,7 +61,7 @@ class Game {
     public var bufferSize:IntVec2;
 
     // The pipeline used to render the backbuffer.
-    // var backbufferPipeline: PipelineState;
+    var backbufferPipeline: PipelineState;
 
     // The pipeline used to render the full screen.
     var fullScreenPipeline: PipelineState;
@@ -139,7 +139,7 @@ class Game {
             });
 
             setFullscreenShader(makeBasePipelineShader());
-            // setBackbufferShader(makeBasePipelineShader());
+            setBackbufferShader(makeBasePipelineShader());
         });
     }
 
@@ -210,13 +210,14 @@ class Game {
             backbuffer.g2.clear(scenes[0].camera.bgColor);
         }
 
+        backbuffer.g2.pipeline = backbufferPipeline;
+
         for (s in scenes) {
             s.render(backbuffer.g2);
         }
         #if debug_physics
         for (s in scenes) s.renderDebug(backbuffer.g2);
         #end
-        // backbuffer.g2.pipeline = backbufferPipeline;
         backbuffer.g2.end();
 
         framebuffer.g2.begin(true, 0xff000000);
@@ -275,9 +276,9 @@ class Game {
 
     // // Set the shader to be used to render the backbuffer.
     // NOTE: commented out because it draws black over sprites behind it
-    // public function setBackbufferShader (imageShader:ImageShader) {
-    //     backbufferPipeline = imageShader.pipeline;
-    // }
+    public function setBackbufferShader (imageShader:ImageShader) {
+        backbufferPipeline = imageShader.pipeline;
+    }
 
     // Set the shader to be used to render the full screen.
     public function setFullscreenShader (imageShader:ImageShader) {

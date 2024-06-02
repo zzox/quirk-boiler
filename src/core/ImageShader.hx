@@ -1,6 +1,7 @@
 package core;
 
 import kha.Shaders;
+import kha.graphics4.BlendingFactor;
 import kha.graphics4.FragmentShader;
 import kha.graphics4.PipelineState;
 import kha.graphics4.VertexData;
@@ -18,6 +19,10 @@ class ImageShader {
         pipeline.inputLayout = [structure];
         pipeline.vertexShader = Shaders.painter_image_vert;
         pipeline.fragmentShader = fragShader;
+        pipeline.blendSource = BlendingFactor.BlendOne;
+        pipeline.blendDestination = BlendingFactor.InverseSourceAlpha;
+        pipeline.alphaBlendSource = BlendingFactor.BlendOne;
+        pipeline.alphaBlendDestination = BlendingFactor.InverseSourceAlpha;
         pipeline.compile();
     }
 }
