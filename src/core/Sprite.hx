@@ -130,8 +130,8 @@ class Sprite extends Object {
                         Math.floor(tileIndex / cols) * size.y,
                         size.x,
                         size.y,
-                        Math.floor(x + ((size.x - size.x * scale.x) / 2) + (flipX ? size.x * scale.x : 0)),
-                        Math.floor(y + ((size.y - size.y * scale.y) / 2) + (flipY ? size.y * scale.y : 0)),
+                        x + ((size.x - size.x * scale.x) / 2) + (flipX ? size.x * scale.x : 0),
+                        y + ((size.y - size.y * scale.y) / 2) + (flipY ? size.y * scale.y : 0),
                         size.x * scale.x * (flipX ? -1 : 1),
                         size.y * scale.y * (flipY ? -1 : 1)
                     );
@@ -313,16 +313,18 @@ class Sprite extends Object {
     }
 
 #if debug_physics
-    // Draw a square around this sprite, or it's PhysicsBody if
-    // `this.physicsEnabled = true;`.
+    // Draw a square around this sprites body if `physicsEnabled = true;`.
     public function renderDebug (g2:Graphics, camera:Camera) {
-        g2.color = Color.Magenta;
-        g2.pushTranslation(-camera.scroll.x * scrollFactor.x, -camera.scroll.y * scrollFactor.y);
-        g2.pushScale(camera.scale.x, camera.scale.y);
-        g2.drawRect(x + offset.x, y + offset.y, body.size.x, body.size.y);
-        g2.popTransformation();
-        g2.popTransformation();
-        g2.color = Color.White;
+        if (physicsEnabled) {
+            g2.color = Color.Magenta;
+            g2.pushTranslation(-camera.scroll.x * scrollFactor.x, -camera.scroll.y * scrollFactor.y);
+            g2.pushScale(camera.scale.x, camera.scale.y);
+            g2.drawRect(x + offset.x, y + offset.y, body.size.x, body.size.y);
+            g2.popTransformation();
+            g2.popTransformation();
+            g2.color = Color.White;
+        }
+
         for (child in _children) {
             child.renderDebug(g2, camera);
         }

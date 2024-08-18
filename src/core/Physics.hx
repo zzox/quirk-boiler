@@ -182,44 +182,57 @@ class Physics {
     // NOTE: checking a perpedicular direction first may prevent seam-clipping.
     // NOTE: moved the returns outside of the separates checks, may affect backwards-compat.
     public function checkDirectionalCollision (fromBody:PhysicsBody, intoBody:PhysicsBody, separates:Bool):Bool {
-        // TODO: something like if abs(velocity.y) > abs(velocity.x) checkLeft(); checkRight();
-        if (fromBody.collides.left && intoBody.collides.right
-            && fromBody.lastPos.x >= intoBody.position.x + intoBody.size.x
-            && fromBody.position.x < intoBody.position.x + intoBody.size.x) {
-            fromBody.touching.left = true;
-            if (separates) {
-                separate(fromBody, intoBody, Left);
+        // var collided = false;
+        // if (Math.abs(fromBody.velocity.x) > Math.abs(fromBody.velocity.y)) {
+        if (false) {
+            final leftCollide = checkLeft(fromBody, intoBody, separates);
+            if (leftCollide) {
+                // collided = true;
+                return true;
             }
+
+            final rightCollide = checkRight(fromBody, intoBody, separates);
+            if (rightCollide) {
+                // collided = true;
+                return true;
+            }
+
+            final upCollide = checkUp(fromBody, intoBody, separates);
+            if (upCollide) {
+                // collided = true;
+                return true;
+            }
+
+            final downCollide = checkDown(fromBody, intoBody, separates);
+            if (downCollide) {
+                // collided = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        final upCollide = checkUp(fromBody, intoBody, separates);
+        if (upCollide) {
+            // collided = true;
             return true;
         }
 
-        if (fromBody.collides.right && intoBody.collides.left
-            && fromBody.lastPos.x + fromBody.size.x <= intoBody.position.x
-            && fromBody.position.x + fromBody.size.x > intoBody.position.x) {
-            fromBody.touching.right = true;
-            if (separates) {
-                separate(fromBody, intoBody, Right);
-            }
+        final downCollide = checkDown(fromBody, intoBody, separates);
+        if (downCollide) {
+            // collided = true;
             return true;
         }
 
-        if (fromBody.collides.up && intoBody.collides.down
-            && fromBody.lastPos.y >= intoBody.position.y + intoBody.size.y
-            && fromBody.position.y < intoBody.position.y + intoBody.size.y) {
-            fromBody.touching.up = true;
-            if (separates) {
-                separate(fromBody, intoBody, Up);
-            }
+        final leftCollide = checkLeft(fromBody, intoBody, separates);
+        if (leftCollide) {
+            // collided = true;
             return true;
         }
 
-        if (fromBody.collides.down && intoBody.collides.up
-            && fromBody.lastPos.y + fromBody.size.y <= intoBody.position.y
-            && fromBody.position.y + fromBody.size.y > intoBody.position.y) {
-            fromBody.touching.down = true;
-            if (separates) {
-                separate(fromBody, intoBody, Down);
-            }
+        final rightCollide = checkRight(fromBody, intoBody, separates);
+        if (rightCollide) {
+            // collided = true;
             return true;
         }
 
@@ -246,5 +259,61 @@ class Physics {
         // parent sprite needs to be updated from the `body`
         // don't like this
         fromBody.updateParent();
+    }
+
+    function checkLeft (fromBody:PhysicsBody, intoBody:PhysicsBody, separates:Bool):Bool {
+        if (fromBody.collides.left && intoBody.collides.right
+            && fromBody.lastPos.x >= intoBody.position.x + intoBody.size.x
+            && fromBody.position.x < intoBody.position.x + intoBody.size.x) {
+            fromBody.touching.left = true;
+            if (separates) {
+                separate(fromBody, intoBody, Left);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    function checkRight (fromBody:PhysicsBody, intoBody:PhysicsBody, separates:Bool):Bool {
+        if (fromBody.collides.right && intoBody.collides.left
+            && fromBody.lastPos.x + fromBody.size.x <= intoBody.position.x
+            && fromBody.position.x + fromBody.size.x > intoBody.position.x) {
+            fromBody.touching.right = true;
+            if (separates) {
+                separate(fromBody, intoBody, Right);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    function checkUp (fromBody:PhysicsBody, intoBody:PhysicsBody, separates:Bool):Bool {
+        if (fromBody.collides.up && intoBody.collides.down
+            && fromBody.lastPos.y >= intoBody.position.y + intoBody.size.y
+            && fromBody.position.y < intoBody.position.y + intoBody.size.y) {
+            fromBody.touching.up = true;
+            if (separates) {
+                separate(fromBody, intoBody, Up);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    function checkDown (fromBody:PhysicsBody, intoBody:PhysicsBody, separates:Bool):Bool {
+        if (fromBody.collides.down && intoBody.collides.up
+            && fromBody.lastPos.y + fromBody.size.y <= intoBody.position.y
+            && fromBody.position.y + fromBody.size.y > intoBody.position.y) {
+            fromBody.touching.down = true;
+            if (separates) {
+                separate(fromBody, intoBody, Down);
+            }
+            return true;
+        }
+
+        return false;
     }
 }

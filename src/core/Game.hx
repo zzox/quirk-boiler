@@ -104,6 +104,9 @@ class Game {
                 Keyboard.get().notify(keys.pressButton, keys.releaseButton);
             }
 
+            setFullscreenShader(makeBasePipelineShader());
+            setBackbufferShader(makeBasePipelineShader());
+
             Assets.loadImage('made_with_kha', (_:Image) -> {
                 switchScene(new PreloadScene());
 
@@ -137,9 +140,6 @@ class Game {
                     switchScene(initalScene);
                 }, null, compressedAudioFilter != null ? compressedAudioFilter : allAssets);
             });
-
-            setFullscreenShader(makeBasePipelineShader());
-            setBackbufferShader(makeBasePipelineShader());
         });
     }
 
@@ -186,39 +186,17 @@ class Game {
     function render (framebuffer:Framebuffer) {
         size.set(framebuffer.width, framebuffer.height);
 
-        framebuffer.g2.begin(true);
-
-        if (scenes[0] != null) {
-            framebuffer.g2.clear(scenes[0].camera.bgColor);
+        for (s in 0...scenes.length) {
+            scenes[s].render(framebuffer.g2, framebuffer.g4, s == 0);
         }
-
-        for (s in scenes) {
-            s.render(framebuffer.g2);
-        }
-#if debug_physics
-        for (s in scenes) s.renderDebug(framebuffer.g2);
-#end
-        framebuffer.g2.end();
     }
 
     function renderScaled (framebuffer:Framebuffer) {
         size.set(framebuffer.width, framebuffer.height);
 
-        backbuffer.g2.begin(true);
-
-        if (scenes[0] != null) {
-            backbuffer.g2.clear(scenes[0].camera.bgColor);
+        for (s in 0...scenes.length) {
+            scenes[s].render(backbuffer.g2, backbuffer.g4, s == 0);
         }
-
-        backbuffer.g2.pipeline = backbufferPipeline;
-
-        for (s in scenes) {
-            s.render(backbuffer.g2);
-        }
-        #if debug_physics
-        for (s in scenes) s.renderDebug(backbuffer.g2);
-        #end
-        backbuffer.g2.end();
 
         framebuffer.g2.begin(true, 0xff000000);
         framebuffer.g2.pipeline = fullScreenPipeline;

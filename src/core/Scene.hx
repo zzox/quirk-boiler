@@ -57,20 +57,25 @@ class Scene {
     public function updateProgress (progress:Float) {}
 
     // called when drawing, passes in graphics instance
-    public function render (graphics:Graphics) {
+    // overriding render will require you to call begin, clear and end
+    public function render (graphics:Graphics, g4:kha.graphics4.Graphics, clears:Bool) {
+        graphics.begin();
+        if (clears) {
+            graphics.clear(camera.bgColor);
+        }
+
         for (sprite in sprites) {
             sprite.render(graphics, camera);
         }
-    }
 
 #if debug_physics
-    // called when drawing, passes in graphics instance
-    public function renderDebug (graphics:Graphics) {
         for (sprite in sprites) {
             sprite.renderDebug(graphics, camera);
         }
-    }
 #end
+
+        graphics.end();
+    }
 
     // add a sprite to the scene
     public function addSprite (sprite:Sprite) {

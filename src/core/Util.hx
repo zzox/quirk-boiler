@@ -105,3 +105,7 @@ function shuffle<T> (items:Array<T>): Array<T> {
 
     return items;
 }
+
+function randomInt (maxInt:Int) {
+    return Math.floor(Math.random() * maxInt);
+}
