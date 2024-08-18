@@ -41,7 +41,8 @@ class Animation {
     // Play animation by name.  Won't restart same anim unless forced.
     public function play (name:String, forceRestart:Bool = false) {
         isPaused = false;
-        if (forceRestart || currentAnim == null || name != currentAnim.name) {
+        // NOTE: `|| completed` isn't adequately tested
+        if (forceRestart || completed || currentAnim == null || name != currentAnim.name) {
             animTime = 0;
             currentAnim = _animations[name];
             completed = false;
