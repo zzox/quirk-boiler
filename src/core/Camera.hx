@@ -60,8 +60,8 @@ class Camera {
 
         if (bounds != null) {
             scroll.set(
-                clamp(scroll.x, bounds.x, bounds.x + bounds.width - width),
-                clamp(scroll.y, bounds.y, bounds.y + bounds.height - height)
+                clamp(scroll.x, bounds.x, bounds.x + bounds.width - (1 / scale.x * width)),
+                clamp(scroll.y, bounds.y, bounds.y + bounds.height - (1 / scale.y * height))
             );
         } else {
             scroll.set(scroll.x, scroll.y);
