@@ -13,6 +13,7 @@ import kha.Scheduler;
 import kha.ScreenCanvas;
 import kha.System;
 import kha.graphics4.PipelineState;
+import kha.input.Gamepad;
 import kha.input.Keyboard;
 import kha.input.Mouse;
 
@@ -49,6 +50,9 @@ class Game {
 
     // Keyboard input controller.
     public var keys:KeysInput = new KeysInput();
+
+    // gamepad input controller.
+    public var gamepads:Gamepads = new Gamepads();
 
     // Physics object.  Not really udpated now, may best be suited to turn
     // mthods into static.
@@ -103,6 +107,16 @@ class Game {
             if (Keyboard.get() != null) {
                 Keyboard.get().notify(keys.pressButton, keys.releaseButton);
             }
+
+            for (i in 0...8) {
+                if (Gamepad.get(i) != null && Gamepad.get(i).connected) {
+                    gamepadConnect(i);
+                }
+            }
+
+            Gamepad.notifyOnConnect(gamepadConnect, gamepadDisconnect);
+
+            // Gamepad.removeConnect()
 
             setFullscreenShader(makeBasePipelineShader());
             setBackbufferShader(makeBasePipelineShader());
@@ -179,6 +193,9 @@ class Game {
         // after the scenes to clear `justPressed`
         keys.update(UPDATE_TIME);
         mouse.update(UPDATE_TIME);
+        for (g in gamepads.list) {
+            g.update(UPDATE_TIME);
+        }
 
         currentTime = now;
     }
@@ -225,6 +242,68 @@ class Game {
                 ScalerExp.transformY(y, backbuffer, ScreenCanvas.the)
             );
         }
+    }
+
+    function gamepadConnect (num:Int) {
+        final PRESSED_AMOUNT:Float = 0.75;
+
+        trace('notifyConnect', num);
+
+        final padData = Gamepad.get(num);
+        final inputItem = new GamepadInput(num, padData.id, padData.vendor);
+        gamepads.list.push(inputItem);
+
+        padData.notify((axis:Int, amount:Float) -> {
+            switch (axis) {
+                case 0: inputItem.axis0 = amount;
+                case 1: inputItem.axis1 = amount;
+                case 2: inputItem.axis2 = amount;
+                case 3: inputItem.axis3 = amount;
+                case 4: inputItem.axis4 = amount;
+                case 5: inputItem.axis5 = amount;
+            }
+
+            if (axis == 0) {
+                if (amount > PRESSED_AMOUNT) {
+                    inputItem.pressButton(GamepadButton.LeftStickRight, amount);
+                } else if (amount < -PRESSED_AMOUNT) {
+                    inputItem.pressButton(GamepadButton.LeftStickLeft, amount);
+                } else {
+                    inputItem.releaseButton(GamepadButton.LeftStickLeft);
+                    inputItem.releaseButton(GamepadButton.LeftStickRight);
+                }
+            } else if (axis == 1) {
+#if js
+                if (amount > PRESSED_AMOUNT) {
+                    inputItem.pressButton(GamepadButton.LeftStickDown, amount);
+                } else if (amount < -PRESSED_AMOUNT) {
+                    inputItem.pressButton(GamepadButton.LeftStickUp, amount);
+#else
+                if (amount > PRESSED_AMOUNT) {
+                    inputItem.pressButton(GamepadButton.LeftStickUp, amount);
+                } else if (amount < -PRESSED_AMOUNT) {
+                    inputItem.pressButton(GamepadButton.LeftStickDown, amount);
+#end
+                } else {
+                    inputItem.releaseButton(GamepadButton.LeftStickDown);
+                    inputItem.releaseButton(GamepadButton.LeftStickUp);
+                }
+            }
+            // TODO: right stick
+        }, (button:Int, amount:Float) -> {
+            if (amount > 0) {
+                inputItem.pressButton(button, amount);
+            } else {
+                inputItem.releaseButton(button);
+            }
+        });
+    }
+
+    function gamepadDisconnect (num:Int) {
+        trace('notifyConnect - dis', num);
+        gamepads.list = gamepads.list.filter((input) -> input.num != num);
+        // TODO: get and remove listeners
+        // Gamepad.get(num).remove(Gamepad.get(num).axisListeners, Gamepad.get(num).buttonListeners);
     }
 
     // Switches the currently updated and rendered scene(s) to a new one. Destroys
