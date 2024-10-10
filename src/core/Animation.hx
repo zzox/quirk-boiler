@@ -42,7 +42,7 @@ class Animation {
     public function play (name:String, forceRestart:Bool = false) {
         isPaused = false;
         // NOTE: `|| completed` isn't adequately tested
-        if (forceRestart || completed || currentAnim == null || name != currentAnim.name) {
+        if (forceRestart /*|| completed*/ || currentAnim == null || name != currentAnim.name) {
             animTime = 0;
             currentAnim = _animations[name];
             completed = false;
