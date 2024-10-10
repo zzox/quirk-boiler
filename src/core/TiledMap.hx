@@ -32,11 +32,19 @@ typedef TileLayer = {
     var height:Int;
     var data:Array<Int>;
 }
+
+function replaceDashes (string:String):String {
+    var s = '';
+    for (c in string.split('')) {
+        s += c == '-' ? '_' : c;
+    }
+    return s;
+}
+
 function getImagefromPath (imagePath:String):Image {
     final path = imagePath.split('/');
     final name = path[path.length - 1].split('.')[0];
-    final r = ~/-/g;
-    return Assets.images.get(r.replace(name, '_'));
+    return Assets.images.get(replaceDashes(name));
 }
 
 /**
@@ -108,10 +116,10 @@ class TiledMap {
                             properties.set(p.get('name'), p.get('value'));
                         }
                     }
-    
+
                     final x = Std.parseFloat(object.get('x'));
                     final y = Std.parseFloat(object.get('y'));
-    
+
                     final verticies = tri.get('points').split(' ');
                     if (verticies.length != 3) {
                         trace(verticies);

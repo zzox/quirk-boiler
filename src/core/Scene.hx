@@ -59,10 +59,11 @@ class Scene {
     // called when drawing, passes in graphics instance
     // overriding render will require you to call begin, clear and end
     public function render (graphics:Graphics, g4:kha.graphics4.Graphics, clears:Bool) {
-        graphics.begin();
-        if (clears) {
-            graphics.clear(camera.bgColor);
-        }
+        graphics.begin(clears, camera.bgColor);
+        // if (clears) {
+        //     // WARN: is this extra call necessary?
+        //     graphics.clear(camera.bgColor);
+        // }
 
         for (sprite in sprites) {
             sprite.render(graphics, camera);

@@ -1,25 +1,19 @@
 package game.scenes;
 
-import core.Camera;
 import core.Scene;
+import core.Sprite;
+import core.Types;
 import kha.Assets;
 import kha.Color;
-import kha.graphics2.Graphics;
 
 class TestScene extends Scene {
-    override function update (delta:Float) {
-        super.update(delta);
-    }
+    override function create () {
+        final rect = new Sprite(new Vec2(10, 20));
+        rect.makeRect(Color.Red, new IntVec2(30, 40));
+        addSprite(rect);
 
-    override function render (g2:Graphics) {
-        super.render(g2);
-
-        g2.color = Color.Red;
-        g2.drawRect(10, 20, 30, 40);
-
-        g2.color = Color.White;
-        g2.font = Assets.fonts.nope_6p;
-        g2.fontSize = 16;
-        g2.drawString('We made it!', 50, 50);
+        final text = new Sprite(new Vec2(50, 50));
+        text.makeText('We made it!', Assets.fonts.nope_6p, 16);
+        addSprite(text);
     }
 }
