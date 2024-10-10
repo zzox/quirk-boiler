@@ -20,6 +20,13 @@ typedef TiledObject = {
     var properties:Map<String, String>;
 }
 
+typedef TiledTriangle = {
+    var v1:Vec2;
+    var v2:Vec2;
+    var v3:Vec2;
+    var properties:Map<String, String>;
+}
+
 typedef TileLayer = {
     var width:Int;
     var height:Int;
@@ -46,6 +53,8 @@ class TiledMap {
     public var tileLayers:Map<String, TileLayer> = [];
     // Map of object groups.
     public var objectGroups:Map<String, Array<TiledObject>> = [];
+    // Map of triangle groups.
+    public var triangleGroups:Map<String, Array<TiledTriangle>> = [];
     // Map of images.
     public var images:Map<String, TiledImage> = [];
 
@@ -74,6 +83,7 @@ class TiledMap {
 
         for (objGroup in xml.elementsNamed('objectgroup')) {
             final objects = [];
+            final triangles = [];
 
             for (object in objGroup.elementsNamed('object')) {
                 final properties = new Map();
@@ -90,9 +100,37 @@ class TiledMap {
                     height: Std.parseFloat(object.get('height')),
                     properties: properties
                 });
+
+                for (tri in object.elementsNamed('polygon')) {
+                    final properties = new Map();
+                    for (props in tri.elementsNamed('properties')) {
+                        for (p in props.elementsNamed('property')) {
+                            properties.set(p.get('name'), p.get('value'));
+                        }
+                    }
+    
+                    final x = Std.parseFloat(object.get('x'));
+                    final y = Std.parseFloat(object.get('y'));
+    
+                    final verticies = tri.get('points').split(' ');
+                    if (verticies.length != 3) {
+                        trace(verticies);
+                        throw 'here';
+                    }
+
+                    triangles.push({
+                        v1: new Vec2(x + Std.parseFloat(verticies[0].split(',')[0]), y + Std.parseFloat(verticies[0].split(',')[1])),
+                        v2: new Vec2(x + Std.parseFloat(verticies[1].split(',')[0]), y + Std.parseFloat(verticies[1].split(',')[1])),
+                        v3: new Vec2(x + Std.parseFloat(verticies[2].split(',')[0]), y + Std.parseFloat(verticies[2].split(',')[1])),
+                        properties: properties
+                    });
+                }
             }
 
             objectGroups.set(objGroup.get('name'), objects);
+            if (triangles.length > 0) {
+                triangleGroups.set(objGroup.get('name'), triangles);
+            }
         }
 
         for (imageLayer in xml.elementsNamed('imagelayer')) {
