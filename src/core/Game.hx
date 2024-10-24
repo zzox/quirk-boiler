@@ -16,6 +16,7 @@ import kha.graphics4.PipelineState;
 import kha.input.Gamepad;
 import kha.input.Keyboard;
 import kha.input.Mouse;
+import kha.input.Surface;
 
 enum ScaleMode {
     PixelPerfect;
@@ -53,6 +54,9 @@ class Game {
 
     // gamepad input controller.
     public var gamepads:Gamepads = new Gamepads();
+
+    // Surface (touch) input controller.
+    public var surface:SurfaceInput = new SurfaceInput();
 
     // Physics object.  Not really udpated now, may best be suited to turn
     // mthods into static.
@@ -96,9 +100,11 @@ class Game {
             // just the movement is PP or None, not `Full`
             if (scaleMode == Full) {
                 Mouse.get().notify(mouse.pressMouse, mouse.releaseMouse, mouse.mouseMove);
+                Surface.get().notify(surface.press, surface.release, surface.move);
             } else {
                 // need to handle screen position and screen scale
                 Mouse.get().notify(mouse.pressMouse, mouse.releaseMouse, onMouseMove);
+                Surface.get().notify(surface.press, surface.release, onSurfaceMove);
             }
 
             // for WEGO
@@ -193,6 +199,7 @@ class Game {
         // after the scenes to clear `justPressed`
         keys.update(UPDATE_TIME);
         mouse.update(UPDATE_TIME);
+        surface.update(UPDATE_TIME);
         for (g in gamepads.list) {
             g.update(UPDATE_TIME);
         }
@@ -238,6 +245,23 @@ class Game {
             mouse.mouseMove(
                 ScalerExp.transformX(x, backbuffer, ScreenCanvas.the),
                 ScalerExp.transformY(y, backbuffer, ScreenCanvas.the),
+                ScalerExp.transformX(x, backbuffer, ScreenCanvas.the),
+                ScalerExp.transformY(y, backbuffer, ScreenCanvas.the)
+            );
+        }
+    }
+
+    function onSurfaceMove (id:Int, x:Int, y:Int) {
+        // NOTE: pass in scaling when there is zoom?
+        if (scaleMode == PixelPerfect) {
+            surface.move(
+                id,
+                ScalerExp.transformPixelPerfectX(x, backbuffer, ScreenCanvas.the),
+                ScalerExp.transformPixelPerfectY(y, backbuffer, ScreenCanvas.the)
+            );
+        } else {
+            surface.move(
+                id,
                 ScalerExp.transformX(x, backbuffer, ScreenCanvas.the),
                 ScalerExp.transformY(y, backbuffer, ScreenCanvas.the)
             );

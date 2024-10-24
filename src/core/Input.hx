@@ -336,3 +336,64 @@ class GamepadInput extends Input {
         // return (_justReleased.filter((c) -> codes.contains(c))).length > 0;
     }
 }
+
+typedef SurfaceData = {
+    var id:Int;
+    var time:Float;
+}
+
+class SurfaceInput extends Input {
+    var _pressed:Array<SurfaceData> = [];
+    var _justPressed:Array<Int> = [];
+    var _justReleased:Array<Int> = [];
+
+    public var screenPos:IntVec2 = new IntVec2(-1, -1);
+    public var position:IntVec2 = new IntVec2(-1, -1);
+
+    public function press (id:Int, _x:Int, _y:Int) {
+        move(id, _x, _y);
+        _pressed.push({ id: id, time: 0.0 });
+        _justPressed.push(id);
+    }
+
+    public function release (id:Int, _x:Int, _y:Int) {
+        _pressed = _pressed.filter((p) -> p.id != id);
+        _justReleased.push(id);
+    }
+
+    public function move (id:Int, x:Int, y:Int) {
+        screenPos.x = x;
+        screenPos.y = y;
+    }
+
+    public function setPos (x:Int, y:Int) {
+        position.x = x;
+        position.y = y;
+    }
+
+    public function update (delta:Float) {
+        _justPressed = [];
+        _justReleased = [];
+        for (btn in _pressed) { btn.time += delta; };
+    }
+
+    public function pressed (id:Int):Bool {
+        return (_pressed.filter((p) -> p.id == id)).length == 1;
+    }
+
+    public function justPressed (?id:Int):Bool {
+        if (id != null) {
+            return _justPressed.contains(id);
+        }
+
+        return _justPressed.length > 0;
+    }
+
+    public function justReleased (?id:Int):Bool {
+        if (id != null) {
+            return _justReleased.contains(id);
+        }
+
+        return _justReleased.length > 0;
+    }
+}
