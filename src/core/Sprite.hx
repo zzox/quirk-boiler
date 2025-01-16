@@ -115,8 +115,8 @@ class Sprite extends Object {
         if (visible) {
             g2.color = Math.floor(alpha * 256) * 0x1000000 + color;
 
-            g2.pushTranslation(-camera.scroll.x * scrollFactor.x, -camera.scroll.y * scrollFactor.y);
             g2.pushRotation(toRadians(angle), getMidpoint().x, getMidpoint().y);
+            g2.pushTranslation(-camera.scroll.x * scrollFactor.x, -camera.scroll.y * scrollFactor.y);
             g2.pushScale(camera.scale.x, camera.scale.y);
 
             switch (type) {
