@@ -4,6 +4,7 @@ import core.Animation;
 import core.Object;
 import core.Types;
 import core.Util;
+import game.objects.Triangle;
 import kha.Color;
 import kha.Font;
 import kha.Image;
@@ -14,6 +15,7 @@ enum SpriteType {
     Image;
     Rect;
     Line;
+    Triangle;
     Text;
     BitmapText;
     Tilemap;
@@ -46,6 +48,10 @@ class Sprite extends Object {
     public var line:Line;
     // The kha `Image` item to be scaled, positioned and drawn.
     public var image:Null<Image>;
+    // The triangle verticies
+    var v1:Vec2;
+    var v2:Vec2;
+    var v3:Vec2;
     // The animation controller for this sprite. Selects the tileIndex
     // based on animation data.
     public var animation:Animation;
@@ -115,6 +121,7 @@ class Sprite extends Object {
         if (visible) {
             g2.color = Math.floor(alpha * 256) * 0x1000000 + color;
 
+            // rotate, translate, then scale
             g2.pushRotation(toRadians(angle), getMidpoint().x, getMidpoint().y);
             g2.pushTranslation(-camera.scroll.x * scrollFactor.x, -camera.scroll.y * scrollFactor.y);
             g2.pushScale(camera.scale.x, camera.scale.y);
@@ -139,6 +146,8 @@ class Sprite extends Object {
                     g2.fillRect(x, y, rect.x * scale.x, rect.y * scale.y);
                 case Line:
                     g2.drawLine(x, y, line.to.x, line.to.y, line.width);
+                case Triangle:
+                    g2.fillTriangle(v1.x, v1.y, v2.x, v2.y, v3.x, v3.y);
                 case Text:
                     g2.font = font;
                     g2.fontSize = fontSize;
@@ -355,6 +364,13 @@ class Sprite extends Object {
         this.fontSize = fontSize;
         textWidth = Std.int(font.width(fontSize, text));
         type = Text;
+    }
+
+    public function makeTriangle (v1:Vec2, v2:Vec2, v3:Vec2) {
+        this.v1 = v1;
+        this.v2 = v2;
+        this.v3 = v3;
+        type = Triangle;
     }
 
     // Make bitmap text. No font sizes on bitmap text.

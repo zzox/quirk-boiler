@@ -123,7 +123,7 @@ class TiledMap {
                     final verticies = tri.get('points').split(' ');
                     if (verticies.length != 3) {
                         trace(verticies);
-                        throw 'here';
+                        throw 'Improper triangle';
                     }
 
                     triangles.push({
