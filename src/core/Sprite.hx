@@ -4,8 +4,6 @@ import core.Animation;
 import core.Object;
 import core.Types;
 import core.Util;
-import game.objects.Triangle;
-import kha.Color;
 import kha.Font;
 import kha.Image;
 import kha.graphics2.Graphics;
